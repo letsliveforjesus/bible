@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
+  <title>God Created Heaven and Earth Color Puzzle — Genesis 1 and 2</title>
+
+  <style>
+    :root {
+      --ink: #25313d;
+      --paper: #fffdf5;
+      --panel: #f4eddc;
+      --success: #e7f7e2;
+      --error: #ffe5e2;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top, #dff3ff 0%, #f7f1df 48%, #e9debd 100%);
+      overflow-x: hidden;
+    }
+
+    /* Start screen: needed because browsers require a user click before audio plays. */
+    .start-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background:
+        linear-gradient(rgba(220, 246, 255, 0.92), rgba(255, 247, 218, 0.94));
+    }
+
+    .start-box {
+      width: min(500px, 94vw);
+      padding: 28px;
+      border: 4px solid var(--ink);
+      border-radius: 24px;
+      text-align: center;
+      background: #fffdf5;
+      box-shadow: 0 12px 0 rgba(37, 49, 61, 0.18);
+    }
+
+    .start-box h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2rem, 7vw, 3.2rem);
+    }
+
+    .start-box p {
+      margin: 0 0 22px;
+      font-size: 1.08rem;
+      line-height: 1.5;
+    }
+
+    .start-button,
+    .control-button {
+      border: 3px solid var(--ink);
+      border-radius: 12px;
+      padding: 13px 20px;
+      color: var(--ink);
+      background: #fff0a8;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 0 rgba(37, 49, 61, 0.24);
+    }
+
+    .start-button:hover,
+    .control-button:hover {
+      background: #ffe36e;
+      transform: translateY(-1px);
+    }
+
+    .start-button:active,
+    .control-button:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 rgba(37, 49, 61, 0.24);
+    }
+
+    /* Main game */
+    .app {
+      width: min(1200px, 100%);
+      min-height: 100dvh;
+      margin: 0 auto;
+      padding: clamp(10px, 2vw, 24px);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .top-bar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .heading {
+      min-width: 0;
+    }
+
+    .heading h1 {
+      margin: 0;
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+    }
+
+    .instructions {
+      margin: 4px 0 0;
+      line-height: 1.35;
+      font-size: clamp(0.88rem, 2vw, 1rem);
+    }
+
+    .game-layout {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 250px;
+      gap: clamp(10px, 2vw, 22px);
+      align-items: center;
+    }
+
+    .scene-wrap {
+      width: 100%;
+      overflow: hidden;
+      border: 4px solid var(--ink);
+      border-radius: 18px;
+      background: white;
+      box-shadow: 0 7px 0 rgba(37, 49, 61, 0.16);
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 72dvh;
+    }
+
+    /* Coloring-page areas */
+    .drop-zone {
+      fill: #ffffff;
+      stroke: var(--ink);
+      stroke-width: 5;
+      stroke-linejoin: round;
+      cursor: pointer;
+      transition: fill 180ms ease, filter 180ms ease;
+    }
+
+    .drop-zone.hovered {
+      filter: brightness(0.92);
+      stroke: #f6a800;
+      stroke-width: 8;
+    }
+
+    .drop-zone.completed {
+      cursor: default;
+    }
+
+    .outline {
+      fill: none;
+      stroke: var(--ink);
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      pointer-events: none;
+    }
+
+    .palette {
+      padding: 14px;
+      border: 4px solid var(--ink);
+      border-radius: 18px;
+      background: var(--panel);
+      box-shadow: 0 7px 0 rgba(37, 49, 61, 0.16);
+    }
+
+    .palette h2 {
+      margin: 0 0 10px;
+      text-align: center;
+      font-size: 1.2rem;
+    }
+
+    .color-card {
+      width: 100%;
+      margin: 8px 0;
+      padding: 10px 8px;
+      border: 3px solid var(--ink);
+      border-radius: 11px;
+      color: #111;
+      font-size: 0.92rem;
+      font-weight: 800;
+      text-align: center;
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+      box-shadow: 0 3px 0 rgba(37, 49, 61, 0.24);
+      transition: transform 150ms ease, opacity 150ms ease;
+    }
+
+    .color-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .color-card:active {
+      cursor: grabbing;
+    }
+
+    .color-card.used {
+      opacity: 0.38;
+      cursor: default;
+      text-decoration: line-through;
+      transform: none;
+    }
+
+    .bottom-area {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    #message {
+      min-height: 44px;
+      margin: 0;
+      padding: 10px 12px;
+      border: 2px solid #4c8d45;
+      border-radius: 12px;
+      background: var(--success);
+      text-align: center;
+      font-weight: 700;
+    }
+
+    #message.error {
+      border-color: #bf4c45;
+      background: var(--error);
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .control-button {
+      padding: 10px 14px;
+      background: #ffffff;
+    }
+
+    /* Temporary card while dragging with mouse, tablet, or phone */
+    .drag-copy {
+      position: fixed;
+      z-index: 9999;
+      width: min(175px, 45vw);
+      pointer-events: none;
+      transform: translate(-50%, -50%) rotate(4deg);
+      opacity: 0.92;
+    }
+
+    /* Completion celebration */
+    .completion-banner {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      display: none;
+      place-items: center;
+      padding: 20px;
+      background: rgba(36, 49, 61, 0.35);
+    }
+
+    .completion-banner.show {
+      display: grid;
+    }
+
+    .completion-card {
+      width: min(540px, 94vw);
+      padding: 28px 22px;
+      border: 5px solid var(--ink);
+      border-radius: 26px;
+      background: #fffdf5;
+      text-align: center;
+      box-shadow: 0 12px 0 rgba(37, 49, 61, 0.22);
+      animation: pop-in 450ms ease-out;
+    }
+
+    .completion-card .hands {
+      font-size: clamp(3.5rem, 12vw, 6rem);
+      line-height: 1;
+      animation: clap 650ms ease-in-out infinite alternate;
+    }
+
+    .completion-card h2 {
+      margin: 8px 0;
+      font-size: clamp(2rem, 8vw, 3.8rem);
+      color: #e35241;
+    }
+
+    .completion-card p {
+      margin: 0 0 18px;
+      font-size: 1.08rem;
+      font-weight: 700;
+    }
+
+    @keyframes pop-in {
+      from {
+        opacity: 0;
+        transform: scale(0.65);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes clap {
+      from {
+        transform: rotate(-8deg) scale(0.95);
+      }
+      to {
+        transform: rotate(8deg) scale(1.08);
+      }
+    }
+
+    @media (max-width: 760px) {
+      .app {
+        padding: 10px;
+      }
+
+      .top-bar {
+        grid-template-columns: 1fr;
+      }
+
+      .top-bar .controls {
+        justify-content: flex-start;
+      }
+
+      .game-layout {
+        grid-template-columns: 1fr;
+        align-items: start;
+      }
+
+      .palette {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 7px;
+        padding: 10px;
+      }
+
+      .palette h2 {
+        grid-column: 1 / -1;
+        margin-bottom: 2px;
+      }
+
+      .color-card {
+        margin: 0;
+        min-height: 48px;
+        display: grid;
+        place-items: center;
+        font-size: 0.82rem;
+      }
+
+      .bottom-area {
+        grid-template-columns: 1fr;
+      }
+
+      .bottom-area .controls {
+        justify-content: center;
+      }
+
+      svg {
+        max-height: none;
+      }
+    }
+
+    @media (max-height: 700px) and (min-width: 761px) {
+      .app {
+        gap: 8px;
+        padding: 10px;
+      }
+
+      .instructions {
+        display: none;
+      }
+
+      .color-card {
+        margin: 5px 0;
+        padding: 7px;
+        font-size: 0.82rem;
+      }
+
+      .palette {
+        padding: 10px;
+      }
+
+      svg {
+        max-height: 62dvh;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Start screen -->
+  <section class="start-screen" id="startScreen">
+    <div class="start-box">
+      <h1>God Created Heaven and Earth Color Puzzle</h1>
+<p>
+  Genesis 1 and 2. Drag the colored cards onto the matching outlined parts
+  of the picture. Turn on the music and complete God’s beautiful creation!
+</p>
+      <button class="start-button" id="startButton" type="button">
+        Start Game and Music ▶
+      </button>
+    </div>
+  </section>
+
+  <!-- Completion screen -->
+  <section class="completion-banner" id="completionBanner" aria-live="assertive">
+    <div class="completion-card">
+      <div class="hands">👏</div>
+      <h2>Hooray!</h2>
+<p>You completed God Created Heaven and Earth Color Puzzle!</p>
+<p>“In the beginning God created the heaven and the earth.” — Genesis 1:1</p>
+      <button class="start-button" id="playAgainButton" type="button">
+        Play Again
+      </button>
+    </div>
+  </section>
+
+  <!-- Audio files -->
+  <audio id="backgroundMusic" loop preload="auto">
+    <source src="happy-children.mp3" type="audio/mpeg" />
+  </audio>
+
+  <audio id="clappingSound" preload="auto">
+    <source src="clapping.mp3" type="audio/mpeg" />
+  </audio>
+
+  <audio id="hooraySound" preload="auto">
+    <source src="hooray.mp3" type="audio/mpeg" />
+  </audio>
+
+  <main class="app">
+    <header class="top-bar">
+      <div class="heading">
+        <h1>God Created Heaven and Earth Color Puzzle</h1>
+<p class="instructions">
+  Genesis 1 and 2. Drag each color card to its matching outlined area.
+  Complete all seven colors to reveal God’s beautiful creation.
+</p>
+      </div>
+
+      <div class="controls">
+        <button class="control-button" id="musicButton" type="button">
+          🔊 Music On
+        </button>
+      </div>
+    </header>
+
+    <section class="game-layout">
+      <div class="scene-wrap" id="sceneWrap">
+        <svg viewBox="0 0 800 600" role="img" aria-label="Garden coloring puzzle">
+          <!-- Blue sky -->
+          <rect
+            class="drop-zone"
+            data-color="sky"
+            x="0"
+            y="0"
+            width="800"
+            height="600"
+          />
+
+          <!-- Sun outline -->
+          <circle class="outline" cx="685" cy="82" r="38" />
+          <path
+            class="outline"
+            d="M685 24v-16 M685 156v-16 M627 82h-16 M759 82h-16
+               M644 41l-12-12 M726 123l12 12 M726 41l12-12 M644 123l-12 12"
+          />
+
+          <!-- Left tree trunk -->
+          <path
+            class="drop-zone"
+            data-color="trunk"
+            d="M157 451
+               C166 385,157 326,170 260
+               C181 204,140 189,132 154
+               C163 180,199 180,220 151
+               C216 202,199 222,193 266
+               C184 332,207 386,220 453 Z"
+          />
+
+          <!-- Right tree trunk -->
+          <path
+            class="drop-zone"
+            data-color="trunk"
+            d="M615 452
+               C602 387,609 333,600 271
+               C593 219,625 190,650 158
+               C646 203,674 220,688 254
+               C665 246,642 247,627 270
+               C635 336,626 392,642 453 Z"
+          />
+
+          <!-- Left tree leaves -->
+          <path
+            class="drop-zone"
+            data-color="leaves"
+            d="M84 263
+               C36 225,60 164,115 159
+               C104 101,178 73,220 122
+               C258 78,334 111,319 169
+               C368 197,327 271,276 260
+               C254 303,187 304,164 267
+               C129 290,102 282,84 263 Z"
+          />
+
+          <!-- Right tree leaves -->
+          <path
+            class="drop-zone"
+            data-color="leaves"
+            d="M505 270
+               C455 227,479 170,527 160
+               C518 103,588 79,629 122
+               C673 78,740 108,726 165
+               C780 194,747 263,699 261
+               C678 301,616 302,593 268
+               C557 290,527 284,505 270 Z"
+          />
+
+          <!-- Purple fruit: left tree -->
+          <g class="drop-zone" data-color="purple-fruit">
+            <circle cx="116" cy="196" r="18" />
+            <circle cx="161" cy="143" r="18" />
+            <circle cx="207" cy="207" r="18" />
+            <circle cx="259" cy="161" r="18" />
+            <circle cx="275" cy="225" r="18" />
+          </g>
+
+          <!-- Red fruit: right tree -->
+          <g class="drop-zone" data-color="red-fruit">
+            <circle cx="543" cy="205" r="18" />
+            <circle cx="581" cy="149" r="18" />
+            <circle cx="626" cy="211" r="18" />
+            <circle cx="674" cy="159" r="18" />
+            <circle cx="702" cy="223" r="18" />
+          </g>
+
+          <!-- Brown hair -->
+          <path
+            class="drop-zone"
+            data-color="hair"
+            d="M355 225
+               C352 186,408 178,421 212
+               C405 204,387 209,381 228 Z"
+          />
+
+          <path
+            class="drop-zone"
+            data-color="hair"
+            d="M314 223
+               C290 185,326 166,349 190
+               C358 204,349 260,345 292
+               C327 286,312 268,314 223 Z"
+          />
+
+          <!-- People outlines -->
+          <g class="outline">
+            <!-- Left person -->
+            <circle cx="332" cy="228" r="27" />
+            <path d="M321 254 C304 284,302 357,319 405" />
+            <path d="M344 254 C362 285,368 357,354 405" />
+            <path d="M317 282 C286 306,275 337,271 360" />
+            <path d="M347 281 C365 300,380 313,399 316" />
+            <path d="M318 405 L306 453 M354 405 L369 453" />
+
+            <!-- Right person -->
+            <circle cx="401" cy="230" r="28" />
+            <path d="M386 258 C373 292,373 359,387 406" />
+            <path d="M416 258 C438 290,440 359,426 407" />
+            <path d="M415 282 C442 284,462 298,479 319" />
+            <path d="M388 282 C370 298,357 309,347 320" />
+            <path d="M388 407 L380 454 M426 407 L442 454" />
+
+            <!-- Faces -->
+            <path d="M322 229 q7 6 14 0 M392 231 q7 6 14 0" />
+            <path d="M324 242 q8 8 17 0 M393 244 q8 8 17 0" />
+          </g>
+
+          <!-- Green bushes and grass -->
+          <path
+            class="drop-zone"
+            data-color="grass"
+            d="M0 455
+               C34 411,78 423,103 453
+               C136 409,181 421,207 457
+               C241 416,288 420,315 458
+               C350 415,402 420,429 458
+               C464 414,510 419,539 457
+               C575 412,622 420,652 455
+               C692 412,747 421,800 452
+               L800 600 L0 600 Z"
+          />
+
+          <!-- Ground lines -->
+          <path
+            class="outline"
+            d="M25 520 C160 496,265 530,395 512
+               C550 491,660 523,780 505"
+          />
+        </svg>
+      </div>
+
+      <aside class="palette" aria-label="Color cards">
+        <h2>Color Cards</h2>
+
+        <div class="color-card" data-color="sky" style="background:#8ed6f5;">
+          Blue Sky
+        </div>
+
+        <div class="color-card" data-color="trunk" style="background:#9a633b;">
+          Brown Tree Trunks
+        </div>
+
+        <div class="color-card" data-color="leaves" style="background:#55ae55;">
+          Green Tree Leaves
+        </div>
+
+        <div
+          class="color-card"
+          data-color="purple-fruit"
+          style="background:#a85bd7; color:white;"
+        >
+          Purple Fruit
+        </div>
+
+        <div
+          class="color-card"
+          data-color="red-fruit"
+          style="background:#ee5b55;"
+        >
+          Red Fruit
+        </div>
+
+        <div
+          class="color-card"
+          data-color="hair"
+          style="background:#59381f; color:white;"
+        >
+          Brown Hair
+        </div>
+
+        <div class="color-card" data-color="grass" style="background:#6bbc50;">
+          Green Bushes and Grass
+        </div>
+      </aside>
+    </section>
+
+    <section class="bottom-area">
+      <p id="message" role="status">
+        Press Start Game and Music, then drag a color card to the correct area.
+      </p>
+
+      <div class="controls">
+        <button class="control-button" id="resetButton" type="button">
+          Start Again
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const colorMap = {
+      sky: "#8ed6f5",
+      trunk: "#9a633b",
+      leaves: "#55ae55",
+      "purple-fruit": "#a85bd7",
+      "red-fruit": "#ee5b55",
+      hair: "#59381f",
+      grass: "#6bbc50"
+    };
+
+    const cards = document.querySelectorAll(".color-card");
+    const zones = document.querySelectorAll(".drop-zone");
+
+    const startScreen = document.getElementById("startScreen");
+    const startButton = document.getElementById("startButton");
+    const musicButton = document.getElementById("musicButton");
+    const resetButton = document.getElementById("resetButton");
+    const playAgainButton = document.getElementById("playAgainButton");
+
+    const completionBanner = document.getElementById("completionBanner");
+    const message = document.getElementById("message");
+
+    const backgroundMusic = document.getElementById("backgroundMusic");
+    const clappingSound = document.getElementById("clappingSound");
+    const hooraySound = document.getElementById("hooraySound");
+
+    let activeColor = null;
+    let dragCopy = null;
+    let gameStarted = false;
+    let musicOn = true;
+    let completedColors = new Set();
+
+    // Set volume levels. Change these numbers from 0.0 to 1.0 if needed.
+    backgroundMusic.volume = 0.28;
+    clappingSound.volume = 0.9;
+    hooraySound.volume = 0.9;
+
+    function setMessage(text, isError = false) {
+      message.textContent = text;
+      message.classList.toggle("error", isError);
+    }
+
+    function startMusic() {
+      backgroundMusic.play().catch(() => {
+        setMessage("Music could not start. Check that happy-children.mp3 is in this folder.", true);
+      });
+
+      musicOn = true;
+      musicButton.textContent = "🔊 Music On";
+    }
+
+    function toggleMusic() {
+      if (!gameStarted) return;
+
+      if (musicOn) {
+        backgroundMusic.pause();
+        musicOn = false;
+        musicButton.textContent = "🔇 Music Off";
+      } else {
+        startMusic();
+      }
+    }
+
+    function playCompletionSounds() {
+      clappingSound.currentTime = 0;
+      hooraySound.currentTime = 0;
+
+      clappingSound.play().catch(() => {});
+      setTimeout(() => {
+        hooraySound.play().catch(() => {});
+      }, 350);
+    }
+
+    function removeDragCopy() {
+      if (dragCopy) {
+        dragCopy.remove();
+        dragCopy = null;
+      }
+
+      zones.forEach(zone => zone.classList.remove("hovered"));
+    }
+
+    function getZoneAtPoint(x, y) {
+      const target = document.elementFromPoint(x, y);
+      return target ? target.closest(".drop-zone") : null;
+    }
+
+    function updateHoverZone(x, y) {
+      zones.forEach(zone => zone.classList.remove("hovered"));
+
+      const zone = getZoneAtPoint(x, y);
+
+      if (zone && !zone.classList.contains("completed")) {
+        zone.classList.add("hovered");
+      }
+    }
+
+    function completeColor(color) {
+      document
+        .querySelectorAll(`.drop-zone[data-color="${color}"]`)
+        .forEach(zone => {
+          zone.style.fill = colorMap[color];
+          zone.classList.remove("hovered");
+          zone.classList.add("completed");
+        });
+
+      const usedCard = document.querySelector(
+        `.color-card[data-color="${color}"]`
+      );
+
+      usedCard.classList.add("used");
+      completedColors.add(color);
+
+      const remaining = cards.length - completedColors.size;
+
+      if (remaining === 0) {
+        setMessage("Wonderful! You completed God Created Heaven and Earth Color Puzzle!");
+        playCompletionSounds();
+
+        setTimeout(() => {
+          completionBanner.classList.add("show");
+        }, 400);
+      } else {
+        setMessage(
+          `Correct! ${remaining} color card${remaining === 1 ? "" : "s"} left.`
+        );
+      }
+    }
+
+    function resetGame() {
+      completedColors.clear();
+      completionBanner.classList.remove("show");
+
+      zones.forEach(zone => {
+        zone.style.fill = "#ffffff";
+        zone.classList.remove("completed", "hovered");
+      });
+
+      cards.forEach(card => {
+        card.classList.remove("used");
+      });
+
+      clappingSound.pause();
+      hooraySound.pause();
+      clappingSound.currentTime = 0;
+      hooraySound.currentTime = 0;
+
+      setMessage("Drag a color card to the correct outlined area.");
+    }
+
+    startButton.addEventListener("click", () => {
+      gameStarted = true;
+      startScreen.style.display = "none";
+      startMusic();
+      setMessage("Drag a color card to the correct outlined area.");
+    });
+
+    musicButton.addEventListener("click", toggleMusic);
+
+    resetButton.addEventListener("click", resetGame);
+
+    playAgainButton.addEventListener("click", () => {
+      resetGame();
+
+      if (!musicOn) {
+        startMusic();
+      }
+    });
+
+    cards.forEach(card => {
+      card.addEventListener("pointerdown", event => {
+        if (!gameStarted || card.classList.contains("used")) return;
+
+        event.preventDefault();
+        activeColor = card.dataset.color;
+
+        dragCopy = card.cloneNode(true);
+        dragCopy.classList.add("drag-copy");
+        dragCopy.classList.remove("used");
+        document.body.appendChild(dragCopy);
+
+        dragCopy.style.left = `${event.clientX}px`;
+        dragCopy.style.top = `${event.clientY}px`;
+
+        card.setPointerCapture(event.pointerId);
+      });
+
+      card.addEventListener("pointermove", event => {
+        if (!activeColor || !dragCopy) return;
+
+        dragCopy.style.left = `${event.clientX}px`;
+        dragCopy.style.top = `${event.clientY}px`;
+
+        updateHoverZone(event.clientX, event.clientY);
+      });
+
+      card.addEventListener("pointerup", event => {
+        if (!activeColor) return;
+
+        const zone = getZoneAtPoint(event.clientX, event.clientY);
+
+        if (!zone) {
+          setMessage("Place the card on a matching outlined area.", true);
+        } else if (zone.classList.contains("completed")) {
+          setMessage("That area has already been colored.", true);
+        } else if (zone.dataset.color === activeColor) {
+          completeColor(activeColor);
+        } else {
+          setMessage("Not quite. Try a different outlined area.", true);
+        }
+
+        activeColor = null;
+        removeDragCopy();
+      });
+
+      card.addEventListener("pointercancel", () => {
+        activeColor = null;
+        removeDragCopy();
+      });
+    });
+  </script>
+</body>
+</html>

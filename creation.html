@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creation Adventure: 7 Days of Wonder</title>
+
+  <style>
+    :root {
+      --navy: #173b70;
+      --blue: #6ed7ff;
+      --sky: #c8f1ff;
+      --yellow: #ffd84d;
+      --green: #52bd65;
+      --pink: #ff8eb8;
+      --purple: #9d7bff;
+      --orange: #ff9b52;
+      --cream: #fffdf4;
+      --ink: #24334a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 10%, #ffffff 0 3px, transparent 4px),
+        radial-gradient(circle at 85% 15%, #ffffff 0 4px, transparent 5px),
+        linear-gradient(
+          180deg,
+          #83dcff 0%,
+          #d9f8ff 52%,
+          #d8f2b7 52%,
+          #9ed77a 100%
+        );
+      overflow-x: hidden;
+    }
+
+    /* Compact computer layout */
+    .app {
+      width: min(840px, calc(100% - 20px));
+      margin: 8px auto 16px;
+    }
+
+    header {
+      text-align: center;
+      padding: 8px 10px 6px;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--navy);
+      font-size: clamp(1.7rem, 4vw, 2.7rem);
+      text-shadow: 2px 3px 0 rgba(255, 255, 255, 0.9);
+    }
+
+    .subtitle {
+      margin: 4px auto 0;
+      max-width: 720px;
+      font-size: clamp(0.9rem, 2vw, 1.05rem);
+      font-weight: bold;
+    }
+
+    .game-card {
+      position: relative;
+      overflow: hidden;
+      background: rgba(255, 253, 244, 0.95);
+      border: 4px solid white;
+      border-radius: 20px;
+      box-shadow: 0 7px 0 rgba(23, 59, 112, 0.16);
+      padding: clamp(12px, 2.2vw, 20px);
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .day-badge,
+    .score-badge,
+    .read-button {
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: white;
+      font-weight: bold;
+      font-size: 0.9rem;
+      box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.13);
+    }
+
+    .day-badge {
+      background: var(--purple);
+    }
+
+    .score-badge {
+      background: var(--green);
+    }
+
+    .read-button {
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      background: var(--navy);
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+
+    .read-button:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.08);
+    }
+
+    .read-button:active {
+      transform: translateY(1px);
+    }
+
+    .music-button {
+      margin-top: 8px;
+      border: none;
+      border-radius: 999px;
+      padding: 9px 15px;
+      background: var(--purple);
+      color: white;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #7256c8;
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+
+    .music-button:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.08);
+    }
+
+    .music-button:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #7256c8;
+    }
+
+    .music-button.off {
+      background: #7b8794;
+      box-shadow: 0 4px 0 #59616d;
+    }
+
+    .progress-track {
+      flex: 1;
+      min-width: 140px;
+      height: 16px;
+      background: #d9e6ef;
+      border-radius: 99px;
+      overflow: hidden;
+      border: 2px solid #b9cad8;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(
+        90deg,
+        var(--yellow),
+        var(--orange),
+        var(--pink)
+      );
+      transition: width 0.5s ease;
+    }
+
+    .scene {
+      position: relative;
+      min-height: 0;
+      height: clamp(180px, 26vw, 230px);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #d9f7ff, #b7eaff);
+      border: 3px solid #b8e3ed;
+      margin: 10px 0 12px;
+    }
+
+    .scene.dark {
+      background: linear-gradient(180deg, #101c4d, #263b82);
+    }
+
+    .scene.land {
+      background: linear-gradient(180deg, #a9e9ff 0 57%, #4cbb60 57% 100%);
+    }
+
+    .scene.sea {
+      background: linear-gradient(180deg, #93e2ff 0 48%, #2d9fe7 48% 100%);
+    }
+
+    .scene.space {
+      background: linear-gradient(180deg, #131b58, #4f3b94);
+    }
+
+    .scene.rest {
+      background: linear-gradient(180deg, #f7c0f3, #ffd879 60%, #91cf76 60%);
+    }
+
+    .scene-art {
+      position: relative;
+      z-index: 2;
+      font-size: clamp(4.5rem, 12vw, 7rem);
+      text-align: center;
+      filter: drop-shadow(0 8px 4px rgba(0, 0, 0, 0.15));
+      animation: float 2.4s ease-in-out infinite;
+      user-select: none;
+      line-height: 1.05;
+    }
+
+    .scene-art.small-art {
+      font-size: clamp(3rem, 8vw, 5rem);
+    }
+
+    .cloud {
+      position: absolute;
+      color: white;
+      font-size: 3.4rem;
+      opacity: 0.9;
+      animation: drift 16s linear infinite;
+      user-select: none;
+    }
+
+    .cloud.one {
+      top: 18px;
+      left: -100px;
+    }
+
+    .cloud.two {
+      top: 90px;
+      left: -220px;
+      animation-delay: -8s;
+      opacity: 0.7;
+    }
+
+    .sparkle {
+      position: absolute;
+      font-size: 1.4rem;
+      animation: twinkle 1.5s ease-in-out infinite alternate;
+      user-select: none;
+    }
+
+    .s1 { top: 12%; left: 12%; }
+    .s2 { top: 20%; right: 18%; animation-delay: 0.5s; }
+    .s3 { bottom: 18%; left: 23%; animation-delay: 0.9s; }
+    .s4 { bottom: 12%; right: 12%; animation-delay: 0.2s; }
+
+    .story-box {
+      background: #fff8d7;
+      border-left: 6px solid var(--yellow);
+      border-radius: 12px;
+      padding: 9px 12px;
+      font-size: clamp(0.92rem, 2vw, 1.05rem);
+      line-height: 1.35;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .question {
+      text-align: center;
+      color: var(--navy);
+      font-size: clamp(1.1rem, 2.8vw, 1.45rem);
+      margin: 7px 0 10px;
+    }
+
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .choice {
+      min-height: 100px;
+      border: 3px solid #d8e5ec;
+      border-radius: 15px;
+      background: white;
+      cursor: pointer;
+      padding: 8px;
+      font: inherit;
+      color: var(--ink);
+      font-weight: bold;
+      font-size: 0.92rem;
+      transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease,
+        border-color 0.15s ease;
+      box-shadow: 0 4px 0 #c8d7df;
+    }
+
+    .choice:hover,
+    .choice:focus {
+      transform: translateY(-3px);
+      border-color: var(--purple);
+      outline: none;
+    }
+
+    .choice:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #c8d7df;
+    }
+
+    .choice .emoji {
+      display: block;
+      font-size: 2.7rem;
+      margin-bottom: 3px;
+    }
+
+    .choice.correct {
+      border-color: var(--green);
+      background: #e5ffe7;
+      animation: celebrate 0.55s ease;
+    }
+
+    .choice.wrong {
+      border-color: #ff6d6d;
+      background: #fff0f0;
+      animation: shake 0.35s ease;
+    }
+
+    .message {
+      min-height: 26px;
+      text-align: center;
+      margin: 10px 0 3px;
+      font-size: 1rem;
+      font-weight: bold;
+    }
+
+    .message.good {
+      color: #198d37;
+    }
+
+    .message.try {
+      color: #c64242;
+    }
+
+    .next-button,
+    .start-button,
+    .restart-button {
+      display: block;
+      margin: 10px auto 0;
+      border: none;
+      border-radius: 999px;
+      padding: 11px 19px;
+      background: linear-gradient(180deg, #ff9fc2, #ed5e99);
+      color: white;
+      font: inherit;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #be3f73;
+      transition: transform 0.15s ease;
+    }
+
+    .next-button:hover,
+    .start-button:hover,
+    .restart-button:hover {
+      transform: translateY(-3px);
+    }
+
+    .next-button:active,
+    .start-button:active,
+    .restart-button:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #be3f73;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .welcome,
+    .finish-screen {
+      text-align: center;
+    }
+
+    .welcome h2,
+    .finish-screen h2 {
+      color: var(--navy);
+      font-size: clamp(1.45rem, 4vw, 2.15rem);
+      margin: 6px 0;
+    }
+
+    .welcome-art,
+    .finish-art {
+      font-size: clamp(4rem, 12vw, 6.5rem);
+      margin: 3px 0;
+      animation: float 2.5s ease-in-out infinite;
+    }
+
+    .seven-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      margin: 12px auto;
+    }
+
+    .mini-day {
+      min-height: 55px;
+      padding: 6px 3px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      font-size: 1.4rem;
+      background: #eef6fa;
+      border: 2px solid #d4e3e9;
+    }
+
+    .mini-day.done {
+      background: #e2ffe3;
+      border-color: var(--green);
+      animation: celebrate 0.4s ease;
+    }
+
+    .learning-note {
+      margin-top: 12px;
+      padding: 10px;
+      background: #e9e1ff;
+      border-radius: 12px;
+      line-height: 1.35;
+    }
+
+    .confetti {
+      position: fixed;
+      top: -20px;
+      z-index: 20;
+      width: 12px;
+      height: 18px;
+      border-radius: 3px;
+      pointer-events: none;
+      animation: fall 3s linear forwards;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: #35526d;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0) rotate(-2deg);
+      }
+
+      50% {
+        transform: translateY(-12px) rotate(2deg);
+      }
+    }
+
+    @keyframes drift {
+      from {
+        transform: translateX(0);
+      }
+
+      to {
+        transform: translateX(1200px);
+      }
+    }
+
+    @keyframes twinkle {
+      from {
+        transform: scale(0.75) rotate(0deg);
+        opacity: 0.45;
+      }
+
+      to {
+        transform: scale(1.25) rotate(20deg);
+        opacity: 1;
+      }
+    }
+
+    @keyframes celebrate {
+      0%, 100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.1) rotate(2deg);
+      }
+    }
+
+    @keyframes shake {
+      0%, 100% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-7px);
+      }
+
+      75% {
+        transform: translateX(7px);
+      }
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(-30px) rotate(0deg);
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(110vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    /* Phone layout */
+    @media (max-width: 600px) {
+      .app {
+        width: calc(100% - 12px);
+        margin: 4px auto 10px;
+      }
+
+      header {
+        padding: 5px 5px 3px;
+      }
+
+      h1 {
+        font-size: 1.55rem;
+      }
+
+      .subtitle {
+        font-size: 0.84rem;
+      }
+
+      .game-card {
+        padding: 10px;
+        border-width: 3px;
+        border-radius: 16px;
+      }
+
+      .top-bar {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+
+      .day-badge {
+        grid-column: 1;
+        grid-row: 1;
+      }
+
+      .score-badge {
+        grid-column: 2;
+        grid-row: 1;
+      }
+
+      .progress-track {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        width: 100%;
+        min-width: 0;
+      }
+
+      .read-button {
+        grid-column: 1 / -1;
+        grid-row: 3;
+      }
+
+      .day-badge,
+      .score-badge,
+      .read-button {
+        width: 100%;
+        padding: 8px 5px;
+        font-size: 0.8rem;
+      }
+
+      .scene {
+        height: 165px;
+        margin: 8px 0;
+      }
+
+      .scene-art {
+        font-size: 4.5rem;
+      }
+
+      .scene-art.small-art {
+        font-size: 3.25rem;
+      }
+
+      .cloud {
+        font-size: 2.5rem;
+      }
+
+      .story-box {
+        padding: 8px 10px;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+      }
+
+      .question {
+        font-size: 1.1rem;
+        margin: 7px 0;
+      }
+
+      .choices {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+
+      .choice {
+        min-height: 62px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 6px 10px;
+        font-size: 0.88rem;
+      }
+
+      .choice .emoji {
+        margin: 0;
+        font-size: 2.2rem;
+      }
+
+      .message {
+        min-height: 22px;
+        margin: 7px 0 2px;
+        font-size: 0.92rem;
+      }
+
+      .next-button,
+      .start-button,
+      .restart-button {
+        margin-top: 8px;
+        padding: 10px 15px;
+        font-size: 0.95rem;
+      }
+
+      .seven-days {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 5px;
+      }
+
+      .mini-day {
+        min-height: 46px;
+        font-size: 1.15rem;
+      }
+    }
+
+    /* Short phone screens or landscape mode */
+    @media (max-height: 650px) {
+      .subtitle {
+        display: none;
+      }
+
+      .scene {
+        height: 135px;
+      }
+
+      .story-box {
+        padding: 6px 9px;
+        line-height: 1.25;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Keep happy-children.mp3 in the same folder as this HTML file -->
+  <audio id="backgroundMusic" loop preload="metadata">
+    <source src="happy-children.mp3" type="audio/mpeg" />
+    Your browser does not support background music.
+  </audio>
+
+  <main class="app">
+    <header>
+      <h1>🌍 Creation Adventure</h1>
+
+      <p class="subtitle">
+        Learn about God creating the world in seven wonderful days!
+      </p>
+
+      <button
+        class="music-button off"
+        id="musicButton"
+        type="button"
+        aria-pressed="false"
+      >
+        🎵 Background Music: Off
+      </button>
+    </header>
+
+    <section class="game-card">
+      <!-- Welcome Screen -->
+      <div id="welcomeScreen" class="welcome">
+        <div class="welcome-art">🌎✨🦁🌳</div>
+
+        <h2>Welcome, Creation Explorer!</h2>
+
+        <p class="story-box">
+          Before there was a world, there was God. God made everything
+          from nothing simply by speaking. Everything God made was good!
+        </p>
+
+        <p>Can you help remember what God created on each day?</p>
+
+        <button class="start-button" id="startButton">
+          Start the Adventure! 🚀
+        </button>
+      </div>
+
+      <!-- Game Screen -->
+      <div id="gameScreen" class="hidden">
+        <div class="top-bar">
+          <div class="day-badge" id="dayBadge">Day 1</div>
+
+          <div class="progress-track" aria-label="Game progress">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+
+          <div class="score-badge">
+            Stars: <span id="score">0</span> ⭐
+          </div>
+
+          <button
+            class="read-button"
+            id="readButton"
+            type="button"
+            aria-pressed="false"
+            title="Read or stop reading the current story"
+          >
+            🔊 Read Story
+          </button>
+        </div>
+
+        <div class="scene" id="scene">
+          <div class="cloud one">☁️</div>
+          <div class="cloud two">☁️</div>
+
+          <span class="sparkle s1">✨</span>
+          <span class="sparkle s2">✨</span>
+          <span class="sparkle s3">✨</span>
+          <span class="sparkle s4">✨</span>
+
+          <div class="scene-art" id="sceneArt">🌟</div>
+        </div>
+
+        <div class="story-box" id="storyText"></div>
+
+        <h2 class="question" id="questionText"></h2>
+
+        <div class="choices" id="choices"></div>
+
+        <div class="message" id="message" aria-live="polite"></div>
+
+        <button class="next-button hidden" id="nextButton">
+          Next Day ➜
+        </button>
+      </div>
+
+      <!-- Finish Screen -->
+      <div id="finishScreen" class="finish-screen hidden">
+        <div class="finish-art">🌍✨🎉</div>
+
+        <h2>You Finished Creation Adventure!</h2>
+
+        <p class="story-box" id="finishMessage"></p>
+
+        <div class="seven-days" id="sevenDays"></div>
+
+        <div class="learning-note">
+          <strong>Remember:</strong><br />
+          God made the world, the sky, the plants, the animals, and people.
+          People are God’s special creation, made to know Him in a special way.
+          On Day 7, God rested because His work was complete—not because He was tired.
+        </div>
+
+        <button class="restart-button" id="restartButton">
+          Play Again! 🔄
+        </button>
+      </div>
+    </section>
+
+    <footer>
+      Based on the Bible’s creation story in Genesis 1–2.
+    </footer>
+  </main>
+
+  <script>
+    const days = [
+      {
+        day: 1,
+        art: "🌟",
+        sceneClass: "dark",
+        story:
+          "God said, “Let there be light,” and there was light. God saw that the light was good!",
+        question: "What did God create on Day 1?",
+        correct: "Light",
+        options: [
+          { label: "Light", emoji: "💡" },
+          { label: "Fish", emoji: "🐟" },
+          { label: "Trees", emoji: "🌳" }
+        ]
+      },
+      {
+        day: 2,
+        art: "☁️🌤️",
+        sceneClass: "",
+        story:
+          "God made the sky above the waters. The beautiful sky was part of God’s good creation.",
+        question: "What did God create on Day 2?",
+        correct: "Sky",
+        options: [
+          { label: "Sky", emoji: "☁️" },
+          { label: "Animals", emoji: "🦁" },
+          { label: "Moon", emoji: "🌙" }
+        ]
+      },
+      {
+        day: 3,
+        art: "🌳🌻🏝️",
+        sceneClass: "land",
+        story:
+          "God made dry land and seas. Then He made grass, plants, flowers, and trees!",
+        question: "What did God create on Day 3?",
+        correct: "Land, seas, and plants",
+        options: [
+          { label: "Land, seas, and plants", emoji: "🌳" },
+          { label: "Birds and fish", emoji: "🐦" },
+          { label: "Sun and stars", emoji: "☀️" }
+        ]
+      },
+      {
+        day: 4,
+        art: "☀️🌙⭐",
+        sceneClass: "space",
+        story:
+          "God made the sun for daytime and the moon and stars for nighttime.",
+        question: "What did God create on Day 4?",
+        correct: "Sun, moon, and stars",
+        options: [
+          { label: "Sun, moon, and stars", emoji: "☀️" },
+          { label: "People", emoji: "🧑" },
+          { label: "Trees", emoji: "🌲" }
+        ]
+      },
+      {
+        day: 5,
+        art: "🐳🐠🐦",
+        sceneClass: "sea",
+        story:
+          "God made sea animals and birds. The waters and skies became full of living creatures!",
+        question: "What did God create on Day 5?",
+        correct: "Fish and birds",
+        options: [
+          { label: "Fish and birds", emoji: "🐟" },
+          { label: "Land animals", emoji: "🐘" },
+          { label: "Dry land", emoji: "🏝️" }
+        ]
+      },
+      {
+        day: 6,
+        art: "🦁🦒👨👩",
+        sceneClass: "land",
+        story:
+          "God made land animals. Then God made man in His own image—male and female. God made people to know Him in a special way.",
+        question: "What did God create on Day 6?",
+        correct: "Man in His own image and land animals",
+        options: [
+          {
+            label: "Man in His own image and land animals",
+            emoji: "👨👩"
+          },
+          { label: "Only the sky", emoji: "☁️" },
+          { label: "Only the stars", emoji: "⭐" }
+        ]
+      },
+      {
+        day: 7,
+        art: "🤲😌",
+        sceneClass: "rest",
+        story:
+          "God looked at all He had made, and it was very good. On the seventh day, God rested because His work was complete.",
+        question: "What happened on Day 7?",
+        correct: "God rested",
+        options: [
+          { label: "God rested", emoji: "😌" },
+          { label: "God made fish", emoji: "🐠" },
+          { label: "God made light", emoji: "💡" }
+        ]
+      }
+    ];
+
+    const welcomeScreen = document.getElementById("welcomeScreen");
+    const gameScreen = document.getElementById("gameScreen");
+    const finishScreen = document.getElementById("finishScreen");
+
+    const startButton = document.getElementById("startButton");
+    const restartButton = document.getElementById("restartButton");
+    const nextButton = document.getElementById("nextButton");
+
+    const musicButton = document.getElementById("musicButton");
+    const readButton = document.getElementById("readButton");
+    const backgroundMusic = document.getElementById("backgroundMusic");
+
+    const dayBadge = document.getElementById("dayBadge");
+    const progressFill = document.getElementById("progressFill");
+    const scoreElement = document.getElementById("score");
+    const scene = document.getElementById("scene");
+    const sceneArt = document.getElementById("sceneArt");
+    const storyText = document.getElementById("storyText");
+    const questionText = document.getElementById("questionText");
+    const choices = document.getElementById("choices");
+    const message = document.getElementById("message");
+    const finishMessage = document.getElementById("finishMessage");
+    const sevenDays = document.getElementById("sevenDays");
+
+    let currentDay = 0;
+    let score = 0;
+    let answered = false;
+    let musicPlaying = false;
+    let isReading = false;
+
+    /* -----------------------------
+       Background Music Controls
+    ------------------------------ */
+
+    function updateMusicButton() {
+      musicButton.textContent = musicPlaying
+        ? "🎵 Background Music: On"
+        : "🎵 Background Music: Off";
+
+      musicButton.classList.toggle("off", !musicPlaying);
+      musicButton.setAttribute("aria-pressed", String(musicPlaying));
+    }
+
+    function startBackgroundMusic() {
+      if (!backgroundMusic) return;
+
+      backgroundMusic.volume = 0.18;
+
+      backgroundMusic
+        .play()
+        .then(() => {
+          musicPlaying = true;
+          updateMusicButton();
+        })
+        .catch(() => {
+          musicPlaying = false;
+          updateMusicButton();
+
+          message.textContent =
+            "Music could not start. Check that happy-children.mp3 is in the same folder.";
+          message.className = "message try";
+        });
+    }
+
+    function stopBackgroundMusic() {
+      if (backgroundMusic) {
+        backgroundMusic.pause();
+      }
+
+      musicPlaying = false;
+      updateMusicButton();
+    }
+
+    function toggleBackgroundMusic() {
+      if (musicPlaying) {
+        stopBackgroundMusic();
+      } else {
+        startBackgroundMusic();
+      }
+    }
+
+    /* -----------------------------
+       Read Story Controls
+    ------------------------------ */
+
+    function updateReadButton() {
+      readButton.textContent = isReading
+        ? "⏹ Stop Reading"
+        : "🔊 Read Story";
+
+      readButton.setAttribute("aria-pressed", String(isReading));
+    }
+
+    function stopReading() {
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+
+      isReading = false;
+      updateReadButton();
+    }
+
+    function readCurrentDay() {
+      if (!("speechSynthesis" in window)) {
+        message.textContent =
+          "Reading is not supported in this browser.";
+        message.className = "message try";
+        return;
+      }
+
+      if (isReading) {
+        stopReading();
+        return;
+      }
+
+      const today = days[currentDay];
+
+      const textToRead =
+        `Day ${today.day}. ` +
+        `${today.story} ` +
+        `${today.question}`;
+
+      const speech = new SpeechSynthesisUtterance(textToRead);
+
+      speech.rate = 0.9;
+      speech.pitch = 1.1;
+      speech.volume = 1;
+
+      speech.onstart = () => {
+        isReading = true;
+        updateReadButton();
+      };
+
+      speech.onend = () => {
+        isReading = false;
+        updateReadButton();
+      };
+
+      speech.onerror = () => {
+        isReading = false;
+        updateReadButton();
+
+        message.textContent = "The story could not be read aloud.";
+        message.className = "message try";
+      };
+
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(speech);
+    }
+
+    /* -----------------------------
+       Game Functions
+    ------------------------------ */
+
+    function startGame() {
+      stopReading();
+
+      currentDay = 0;
+      score = 0;
+      answered = false;
+
+      scoreElement.textContent = score;
+
+      welcomeScreen.classList.add("hidden");
+      finishScreen.classList.add("hidden");
+      gameScreen.classList.remove("hidden");
+
+      renderDay();
+    }
+
+    function renderDay() {
+      const today = days[currentDay];
+
+      answered = false;
+      stopReading();
+
+      dayBadge.textContent = `Day ${today.day}`;
+      progressFill.style.width = `${(currentDay / days.length) * 100}%`;
+
+      scene.className = "scene";
+
+      if (today.sceneClass) {
+        scene.classList.add(today.sceneClass);
+      }
+
+      sceneArt.textContent = today.art;
+      sceneArt.className =
+        today.art.length > 6
+          ? "scene-art small-art"
+          : "scene-art";
+
+      storyText.textContent = today.story;
+      questionText.textContent = today.question;
+
+      message.textContent = "";
+      message.className = "message";
+
+      nextButton.classList.add("hidden");
+
+      choices.innerHTML = "";
+
+      const shuffledOptions = [...today.options].sort(
+        () => Math.random() - 0.5
+      );
+
+      shuffledOptions.forEach((option) => {
+        const button = document.createElement("button");
+
+        button.className = "choice";
+        button.innerHTML = `
+          <span class="emoji">${option.emoji}</span>
+          <span>${option.label}</span>
+        `;
+
+        button.addEventListener("click", () => {
+          chooseAnswer(button, option.label);
+        });
+
+        choices.appendChild(button);
+      });
+    }
+
+    function chooseAnswer(button, selectedAnswer) {
+      if (answered) return;
+
+      const today = days[currentDay];
+
+      if (selectedAnswer === today.correct) {
+        answered = true;
+        score += 1;
+
+        scoreElement.textContent = score;
+
+        button.classList.add("correct");
+
+        message.textContent = "Wonderful! God made that! ⭐";
+        message.className = "message good";
+
+        document.querySelectorAll(".choice").forEach((choice) => {
+          choice.disabled = true;
+        });
+
+        createConfetti();
+
+        nextButton.classList.remove("hidden");
+
+        nextButton.textContent =
+          currentDay === days.length - 1
+            ? "Finish Adventure! 🎉"
+            : "Next Day ➜";
+      } else {
+        button.classList.add("wrong");
+
+        message.textContent =
+          "Nice try! Look at the story and try again. 😊";
+
+        message.className = "message try";
+
+        setTimeout(() => {
+          button.classList.remove("wrong");
+        }, 450);
+      }
+    }
+
+    function nextDay() {
+      stopReading();
+
+      currentDay += 1;
+
+      if (currentDay >= days.length) {
+        showFinishScreen();
+      } else {
+        renderDay();
+      }
+    }
+
+    function showFinishScreen() {
+      stopReading();
+
+      progressFill.style.width = "100%";
+
+      gameScreen.classList.add("hidden");
+      finishScreen.classList.remove("hidden");
+
+      finishMessage.innerHTML = `
+        You collected <strong>${score} of 7 stars!</strong><br /><br />
+        God created a wonderful world, and everything He made was good!
+      `;
+
+      sevenDays.innerHTML = "";
+
+      const dayIcons = [
+        "💡",
+        "☁️",
+        "🌳",
+        "☀️",
+        "🐟",
+        "👨👩",
+        "😌"
+      ];
+
+      dayIcons.forEach((icon, index) => {
+        const box = document.createElement("div");
+
+        box.className = "mini-day done";
+        box.innerHTML = `
+          <span>${index + 1}</span>
+          <span>${icon}</span>
+        `;
+
+        sevenDays.appendChild(box);
+      });
+
+      createConfetti();
+      setTimeout(createConfetti, 500);
+    }
+
+    function createConfetti() {
+      const colors = [
+        "#ff5e9c",
+        "#ffd84d",
+        "#52bd65",
+        "#6ed7ff",
+        "#9d7bff",
+        "#ff9b52"
+      ];
+
+      for (let i = 0; i < 35; i++) {
+        const confetti = document.createElement("div");
+
+        confetti.className = "confetti";
+        confetti.style.left = `${Math.random() * 100}vw`;
+        confetti.style.backgroundColor =
+          colors[Math.floor(Math.random() * colors.length)];
+
+        confetti.style.animationDuration =
+          `${2 + Math.random() * 1.6}s`;
+
+        confetti.style.transform =
+          `rotate(${Math.random() * 360}deg)`;
+
+        document.body.appendChild(confetti);
+
+        setTimeout(() => {
+          confetti.remove();
+        }, 3800);
+      }
+    }
+
+    /* -----------------------------
+       Button Events
+    ------------------------------ */
+
+    startButton.addEventListener("click", startGame);
+    restartButton.addEventListener("click", startGame);
+    nextButton.addEventListener("click", nextDay);
+
+    musicButton.addEventListener("click", toggleBackgroundMusic);
+    readButton.addEventListener("click", readCurrentDay);
+
+    updateMusicButton();
+    updateReadButton();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creation Connect-the-Dots</title>
+
+  <style>
+    :root {
+      --navy: #173b70;
+      --blue: #57c7f3;
+      --yellow: #ffd84d;
+      --green: #55bb65;
+      --pink: #f66fa5;
+      --purple: #8b70e8;
+      --cream: #fffdf5;
+      --red: #c33f45;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      color: #24334a;
+      background: linear-gradient(
+        #8bddff 0%,
+        #d9f8ff 58%,
+        #a9dd7c 58%,
+        #76bd62 100%
+      );
+      overflow-x: hidden;
+    }
+
+    /* Compact computer layout */
+    .container {
+      width: min(820px, calc(100% - 20px));
+      margin: 10px auto 20px;
+    }
+
+    header {
+      text-align: center;
+      padding: 5px;
+    }
+
+    h1 {
+      color: var(--navy);
+      font-size: clamp(1.6rem, 4.5vw, 2.6rem);
+      margin: 0;
+      text-shadow: 2px 3px 0 white;
+    }
+
+    header p {
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
+      font-weight: bold;
+      margin: 5px 0;
+    }
+
+    .music-button {
+      margin-top: 7px;
+      font-family: inherit;
+      font-weight: bold;
+      font-size: 0.9rem;
+      color: white;
+      border: none;
+      border-radius: 999px;
+      padding: 9px 15px;
+      cursor: pointer;
+      background: linear-gradient(#aa91ff, #7c61d2);
+      box-shadow: 0 4px 0 #6048a9;
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+
+    .music-button.off {
+      background: linear-gradient(#a9adb7, #747a86);
+      box-shadow: 0 4px 0 #555b65;
+    }
+
+    .music-button:hover,
+    button:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.04);
+    }
+
+    .music-button:active,
+    button:active {
+      transform: translateY(2px);
+    }
+
+    .game-box {
+      background: rgba(255, 253, 245, 0.96);
+      border: 4px solid white;
+      border-radius: 20px;
+      box-shadow: 0 7px 0 rgba(23, 59, 112, 0.16);
+      padding: clamp(12px, 2.5vw, 20px);
+      overflow: hidden;
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .badge {
+      color: white;
+      font-weight: bold;
+      font-size: 0.9rem;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: var(--purple);
+      box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.15);
+    }
+
+    .stars {
+      background: var(--green);
+    }
+
+    .progress-wrap {
+      flex: 1;
+      min-width: 120px;
+      height: 16px;
+      border-radius: 30px;
+      overflow: hidden;
+      background: #d9e7ec;
+      border: 2px solid #b9cbd6;
+    }
+
+    .progress {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ffd84d, #ff9d4d, #f66fa5);
+      transition: width 0.4s ease;
+    }
+
+    .story {
+      text-align: center;
+      background: #fff4bd;
+      border-left: 6px solid var(--yellow);
+      padding: 10px;
+      border-radius: 12px;
+      line-height: 1.35;
+      font-size: clamp(0.9rem, 2.5vw, 1.05rem);
+      margin-bottom: 10px;
+    }
+
+    .word-card {
+      text-align: center;
+      padding: 8px;
+      border-radius: 14px;
+      color: white;
+      background: linear-gradient(135deg, #f66fa5, #9c74ec);
+      margin-bottom: 10px;
+    }
+
+    .word-card small {
+      display: block;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .word-card h2 {
+      margin: 4px 0 0;
+      font-size: clamp(1.6rem, 5vw, 2.7rem);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .instructions {
+      text-align: center;
+      font-weight: bold;
+      color: var(--navy);
+      font-size: 1rem;
+      margin: 8px 0;
+    }
+
+    .audio-controls {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 8px 0 10px;
+    }
+
+    .drawing-area {
+      position: relative;
+      min-height: 0;
+      height: clamp(260px, 42vw, 340px);
+      border-radius: 18px;
+      overflow: hidden;
+      border: 3px solid #bce7ef;
+      background: linear-gradient(180deg, #c5f3ff, #eafffc);
+    }
+
+    .drawing-area.space {
+      background: linear-gradient(180deg, #171d5a, #4f3d98);
+    }
+
+    .drawing-area.ocean {
+      background: linear-gradient(180deg, #9be9ff 0 42%, #278fdb 42% 100%);
+    }
+
+    .drawing-area.garden {
+      background: linear-gradient(180deg, #bcefff 0 55%, #66c56c 55% 100%);
+    }
+
+    .drawing-area.rest {
+      background: linear-gradient(180deg, #f9c7ec, #ffe480 58%, #92d27b 58%);
+    }
+
+    #dotSvg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: manipulation;
+    }
+
+    .line {
+      stroke: #f95c9c;
+      stroke-width: 6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter: drop-shadow(0 3px 1px rgba(0, 0, 0, 0.15));
+      animation: lineGrow 0.25s ease;
+    }
+
+    .dot {
+      fill: white;
+      stroke: var(--navy);
+      stroke-width: 3;
+      cursor: pointer;
+    }
+
+    .dot:hover {
+      fill: var(--yellow);
+    }
+
+    .dot.completed {
+      fill: var(--green);
+      stroke: white;
+    }
+
+    .dot.wrong {
+      fill: #ff7474;
+      animation: shakeDot 0.35s ease;
+    }
+
+    .dot-number {
+      fill: var(--navy);
+      font-size: 14px;
+      font-weight: bold;
+      text-anchor: middle;
+      dominant-baseline: central;
+      pointer-events: none;
+    }
+
+    .finish-picture {
+      font-size: 4rem;
+      text-anchor: middle;
+      animation: bounce 1.1s ease-in-out infinite;
+    }
+
+    .message {
+      min-height: 28px;
+      text-align: center;
+      font-size: 1rem;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+
+    .message.success {
+      color: #168134;
+    }
+
+    .message.try {
+      color: var(--red);
+    }
+
+    button {
+      font-family: inherit;
+      font-weight: bold;
+      font-size: 0.95rem;
+      color: white;
+      border: none;
+      border-radius: 999px;
+      padding: 10px 16px;
+      cursor: pointer;
+      background: linear-gradient(#ff9fc2, #e65390);
+      box-shadow: 0 5px 0 #bc3c70;
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+
+    button:active {
+      box-shadow: 0 2px 0 #bc3c70;
+    }
+
+    button:focus-visible {
+      outline: 4px solid var(--yellow);
+      outline-offset: 3px;
+    }
+
+    .secondary-button {
+      background: linear-gradient(#78d8f8, #3da9d8);
+      box-shadow: 0 5px 0 #227da9;
+    }
+
+    .secondary-button:active {
+      box-shadow: 0 2px 0 #227da9;
+    }
+
+    .center-button {
+      display: block;
+      margin: 10px auto 0;
+    }
+
+    .nav-buttons {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .welcome,
+    .finished {
+      text-align: center;
+    }
+
+    .welcome-art,
+    .finished-art {
+      font-size: clamp(4rem, 13vw, 7rem);
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    .welcome h2,
+    .finished h2 {
+      color: var(--navy);
+      font-size: clamp(1.45rem, 4vw, 2.15rem);
+    }
+
+    .review-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      margin: 12px auto;
+    }
+
+    .review-day {
+      background: #e5ffe5;
+      border: 3px solid var(--green);
+      border-radius: 12px;
+      padding: 6px 2px;
+      font-size: 1.25rem;
+    }
+
+    .review-day small {
+      display: block;
+      color: var(--navy);
+      font-size: 0.65rem;
+      font-weight: bold;
+    }
+
+    .confetti {
+      position: fixed;
+      top: -20px;
+      width: 12px;
+      height: 18px;
+      border-radius: 3px;
+      z-index: 100;
+      pointer-events: none;
+      animation: fall 3s linear forwards;
+    }
+
+    @keyframes lineGrow {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes bounce {
+      0%,
+      100% {
+        transform: translateY(0) rotate(-2deg);
+      }
+
+      50% {
+        transform: translateY(-12px) rotate(2deg);
+      }
+    }
+
+    @keyframes shakeDot {
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-8px);
+      }
+
+      75% {
+        transform: translateX(8px);
+      }
+    }
+
+    @keyframes fall {
+      from {
+        transform: translateY(-30px) rotate(0);
+        opacity: 1;
+      }
+
+      to {
+        transform: translateY(110vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    /* Phone layout */
+    @media (max-width: 600px) {
+      .container {
+        width: calc(100% - 14px);
+        margin: 6px auto 12px;
+      }
+
+      .game-box {
+        padding: 10px;
+        border-width: 3px;
+        border-radius: 16px;
+      }
+
+      .top-row {
+        justify-content: center;
+      }
+
+      .progress-wrap {
+        order: 3;
+        flex-basis: 100%;
+        width: 100%;
+      }
+
+      .drawing-area,
+      #dotSvg {
+        height: 270px;
+      }
+
+      .audio-controls button,
+      .nav-buttons button {
+        font-size: 0.86rem;
+        padding: 9px 12px;
+      }
+
+      .review-days {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+      }
+    }
+
+    /* Short phone screens and landscape phones */
+    @media (max-height: 650px) and (max-width: 900px) {
+      header p {
+        display: none;
+      }
+
+      .drawing-area,
+      #dotSvg {
+        height: 230px;
+      }
+
+      .story {
+        padding: 7px;
+      }
+
+      .word-card {
+        padding: 6px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Keep happy-children.mp3 in the same folder as this HTML file -->
+  <audio id="backgroundMusic" loop preload="metadata">
+    <source src="happy-children.mp3" type="audio/mpeg" />
+    Your browser does not support background music.
+  </audio>
+
+  <main class="container">
+    <header>
+      <h1>✨ Creation Connect-the-Dots ✨</h1>
+
+      <p>
+        Tap the dots in number order to discover what God created!
+      </p>
+
+      <button
+        id="musicButton"
+        class="music-button off"
+        type="button"
+        aria-pressed="false"
+      >
+        🎵 Background Music: Off
+      </button>
+    </header>
+
+    <section class="game-box">
+      <!-- Welcome Screen -->
+      <div id="welcomeScreen" class="welcome">
+        <div class="welcome-art">🌍⭐🦁</div>
+
+        <h2>Welcome, Creation Explorer!</h2>
+
+        <div class="story">
+          God created the world in seven days. Connect the dots to reveal
+          something God made each day!
+        </div>
+
+        <button id="startButton" class="center-button">
+          Start the Game! 🚀
+        </button>
+      </div>
+
+      <!-- Game Screen -->
+      <div id="gameScreen" class="hidden">
+        <div class="top-row">
+          <div class="badge" id="dayBadge">Day 1</div>
+
+          <div
+            class="progress-wrap"
+            aria-label="Game progress"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+          >
+            <div class="progress" id="progressBar"></div>
+          </div>
+
+          <div class="badge stars">
+            Stars: <span id="score">0</span> ⭐
+          </div>
+        </div>
+
+        <div class="story" id="storyText"></div>
+
+        <div class="word-card">
+          <small>CONNECT THE DOTS TO MAKE</small>
+          <h2 id="wordText">LIGHT</h2>
+        </div>
+
+        <div class="instructions">
+          Start with Dot 1. Then tap Dot 2, Dot 3, and keep going!
+        </div>
+
+        <div class="audio-controls">
+          <button
+            id="readButton"
+            class="secondary-button"
+            type="button"
+            aria-pressed="false"
+            aria-label="Read or stop reading the current day story"
+          >
+            🔊 Read Aloud
+          </button>
+        </div>
+
+        <div class="drawing-area" id="drawingArea">
+          <svg
+            id="dotSvg"
+            viewBox="0 0 400 420"
+            role="img"
+            aria-label="Connect the dots picture"
+          ></svg>
+        </div>
+
+        <div
+          class="message"
+          id="message"
+          aria-live="polite"
+          aria-atomic="true"
+        ></div>
+
+        <div class="nav-buttons">
+          <button id="previousButton" class="hidden">
+            ⬅ Go Back
+          </button>
+
+          <button id="nextButton">
+            Next Day ➜
+          </button>
+        </div>
+      </div>
+
+      <!-- Finish Screen -->
+      <div id="finishedScreen" class="finished hidden">
+        <div class="finished-art">🎉🌍✨</div>
+
+        <h2>You Connected All Seven Days!</h2>
+
+        <div class="story">
+          God made the world, animals, and people.<br /><br />
+
+          <strong>
+            God created man and woman—male and female—as His special creation!
+          </strong>
+        </div>
+
+        <div class="review-days">
+          <div class="review-day">💡<small>Day 1</small></div>
+          <div class="review-day">☁️<small>Day 2</small></div>
+          <div class="review-day">🌳<small>Day 3</small></div>
+          <div class="review-day">☀️<small>Day 4</small></div>
+          <div class="review-day">🐦<small>Day 5</small></div>
+          <div class="review-day">🧑👩<small>Day 6</small></div>
+          <div class="review-day">😌<small>Day 7</small></div>
+        </div>
+
+        <div class="nav-buttons">
+          <button id="backToGameButton">
+            ⬅ Back to Day 7
+          </button>
+
+          <button id="playAgainButton">
+            Play Again! 🔄
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const days = [
+      {
+        day: 1,
+        word: "Light",
+        emoji: "💡",
+        scene: "space",
+        story:
+          "On Day 1, God said, “Let there be light!” God made light, and it was good.",
+        points: [
+          [200, 60],
+          [160, 92],
+          [142, 140],
+          [145, 188],
+          [165, 224],
+          [181, 248],
+          [178, 285],
+          [222, 285],
+          [219, 248],
+          [235, 224],
+          [255, 188],
+          [258, 140],
+          [240, 92]
+        ]
+      },
+      {
+        day: 2,
+        word: "Sky",
+        emoji: "☁️",
+        scene: "",
+        story: "On Day 2, God made the sky above the waters.",
+        points: [
+          [90, 250],
+          [105, 205],
+          [140, 185],
+          [175, 195],
+          [195, 160],
+          [240, 155],
+          [275, 180],
+          [300, 220],
+          [285, 255],
+          [245, 270],
+          [200, 265],
+          [155, 280],
+          [115, 270]
+        ]
+      },
+      {
+        day: 3,
+        word: "Tree",
+        emoji: "🌳",
+        scene: "garden",
+        story:
+          "On Day 3, God made dry land, seas, plants, flowers, and trees.",
+        points: [
+          [200, 80],
+          [155, 115],
+          [140, 165],
+          [165, 200],
+          [145, 235],
+          [180, 240],
+          [180, 325],
+          [155, 350],
+          [245, 350],
+          [220, 325],
+          [220, 240],
+          [255, 235],
+          [235, 200],
+          [260, 165],
+          [245, 115]
+        ]
+      },
+      {
+        day: 4,
+        word: "Sun",
+        emoji: "☀️",
+        scene: "space",
+        story: "On Day 4, God made the sun, moon, and stars.",
+        points: [
+          [200, 95],
+          [225, 120],
+          [245, 155],
+          [248, 195],
+          [230, 230],
+          [200, 250],
+          [170, 230],
+          [152, 195],
+          [155, 155],
+          [175, 120]
+        ]
+      },
+      {
+        day: 5,
+        word: "Bird",
+        emoji: "🐦",
+        scene: "",
+        story:
+          "On Day 5, God made fish, sea animals, birds, and other flying creatures.",
+        points: [
+          [80, 180],
+          [125, 160],
+          [165, 185],
+          [200, 225],
+          [235, 185],
+          [275, 160],
+          [320, 180],
+          [285, 235],
+          [245, 255],
+          [200, 250],
+          [155, 255],
+          [115, 235]
+        ]
+      },
+      {
+        day: 6,
+        word: "Man and Woman",
+        emoji: "🧑👩",
+        scene: "garden",
+        story:
+          "On Day 6, God made land animals and people. God created man and woman—male and female—as His special creation!",
+        points: [
+          [140, 90],
+          [115, 120],
+          [120, 165],
+          [105, 210],
+          [125, 245],
+          [125, 330],
+          [155, 330],
+          [155, 250],
+          [175, 220],
+          [200, 220],
+          [225, 250],
+          [225, 330],
+          [255, 330],
+          [255, 245],
+          [275, 210],
+          [260, 165],
+          [265, 120],
+          [240, 90]
+        ]
+      },
+      {
+        day: 7,
+        word: "Rest",
+        emoji: "😌",
+        scene: "rest",
+        story:
+          "On Day 7, God rested because His work of creation was complete—not because He was tired.",
+        points: [
+          [255, 85],
+          [220, 100],
+          [195, 130],
+          [182, 175],
+          [188, 220],
+          [215, 255],
+          [255, 270],
+          [295, 258],
+          [325, 225],
+          [280, 235],
+          [245, 220],
+          [225, 190],
+          [220, 150],
+          [235, 115]
+        ]
+      }
+    ];
+
+    let currentDay = 0;
+    let currentDot = 0;
+    let score = 0;
+    let finishedPicture = false;
+    let musicPlaying = false;
+    let isReading = false;
+
+    const completedDays = new Set();
+
+    const welcomeScreen = document.getElementById("welcomeScreen");
+    const gameScreen = document.getElementById("gameScreen");
+    const finishedScreen = document.getElementById("finishedScreen");
+
+    const dayBadge = document.getElementById("dayBadge");
+    const progressBar = document.getElementById("progressBar");
+    const scoreText = document.getElementById("score");
+    const storyText = document.getElementById("storyText");
+    const wordText = document.getElementById("wordText");
+    const drawingArea = document.getElementById("drawingArea");
+    const dotSvg = document.getElementById("dotSvg");
+    const message = document.getElementById("message");
+
+    const musicButton = document.getElementById("musicButton");
+    const readButton = document.getElementById("readButton");
+    const backgroundMusic = document.getElementById("backgroundMusic");
+
+    const progressWrap = document.querySelector(".progress-wrap");
+    const previousButton = document.getElementById("previousButton");
+    const nextButton = document.getElementById("nextButton");
+
+    document.getElementById("startButton").addEventListener("click", startGame);
+    document.getElementById("playAgainButton").addEventListener("click", startGame);
+    document.getElementById("backToGameButton").addEventListener("click", backToGame);
+
+    previousButton.addEventListener("click", previousDay);
+    nextButton.addEventListener("click", nextDay);
+
+    musicButton.addEventListener("click", toggleBackgroundMusic);
+    readButton.addEventListener("click", readCurrentDayAloud);
+
+    /* -----------------------------
+       Background Music Controls
+    ------------------------------ */
+
+    function updateMusicButton() {
+      musicButton.textContent = musicPlaying
+        ? "🎵 Background Music: On"
+        : "🎵 Background Music: Off";
+
+      musicButton.classList.toggle("off", !musicPlaying);
+      musicButton.setAttribute("aria-pressed", String(musicPlaying));
+    }
+
+    function startBackgroundMusic() {
+      backgroundMusic.volume = 0.18;
+
+      backgroundMusic
+        .play()
+        .then(() => {
+          musicPlaying = true;
+          updateMusicButton();
+        })
+        .catch(() => {
+          musicPlaying = false;
+          updateMusicButton();
+
+          message.textContent =
+            "Music could not start. Check that happy-children.mp3 is in the same folder.";
+          message.className = "message try";
+        });
+    }
+
+    function stopBackgroundMusic() {
+      backgroundMusic.pause();
+
+      musicPlaying = false;
+      updateMusicButton();
+    }
+
+    function toggleBackgroundMusic() {
+      if (musicPlaying) {
+        stopBackgroundMusic();
+      } else {
+        startBackgroundMusic();
+      }
+    }
+
+    /* -----------------------------
+       Read Aloud Controls
+    ------------------------------ */
+
+    function updateReadButton() {
+      readButton.textContent = isReading
+        ? "⏹ Stop Reading"
+        : "🔊 Read Aloud";
+
+      readButton.setAttribute("aria-pressed", String(isReading));
+    }
+
+    function stopReading() {
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+
+      isReading = false;
+      updateReadButton();
+    }
+
+    function readCurrentDayAloud() {
+      if (!("speechSynthesis" in window)) {
+        message.textContent =
+          "Read Aloud is not supported in this browser.";
+        message.className = "message try";
+        return;
+      }
+
+      if (isReading) {
+        stopReading();
+
+        message.textContent = "Reading stopped.";
+        message.className = "message";
+        return;
+      }
+
+      const today = days[currentDay];
+
+      const textToRead =
+        `Day ${today.day}. ` +
+        `Today we are connecting the dots to make ${today.word}. ` +
+        `${today.story} ` +
+        "Start with Dot 1. Then tap Dot 2, Dot 3, and keep going!";
+
+      const speech = new SpeechSynthesisUtterance(textToRead);
+
+      speech.rate = 0.9;
+      speech.pitch = 1.1;
+      speech.volume = 1;
+
+      speech.onstart = () => {
+        isReading = true;
+        updateReadButton();
+
+        message.textContent = "Reading the story aloud...";
+        message.className = "message";
+      };
+
+      speech.onend = () => {
+        isReading = false;
+        updateReadButton();
+
+        message.textContent =
+          "Finished reading. You can connect the dots now! 😊";
+        message.className = "message";
+      };
+
+      speech.onerror = () => {
+        isReading = false;
+        updateReadButton();
+
+        message.textContent = "The story could not be read aloud.";
+        message.className = "message try";
+      };
+
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(speech);
+    }
+
+    /* -----------------------------
+       Game Functions
+    ------------------------------ */
+
+    function startGame() {
+      stopReading();
+
+      currentDay = 0;
+      currentDot = 0;
+      score = 0;
+      finishedPicture = false;
+      completedDays.clear();
+
+      scoreText.textContent = score;
+
+      welcomeScreen.classList.add("hidden");
+      finishedScreen.classList.add("hidden");
+      gameScreen.classList.remove("hidden");
+
+      showDay();
+    }
+
+    function showDay() {
+      stopReading();
+
+      const today = days[currentDay];
+      const alreadyCompleted = completedDays.has(currentDay);
+
+      const progressPercent = Math.round(
+        (currentDay / days.length) * 100
+      );
+
+      dayBadge.textContent = `Day ${today.day}`;
+      storyText.textContent = today.story;
+      wordText.textContent = today.word;
+
+      progressBar.style.width = `${progressPercent}%`;
+      progressWrap.setAttribute("aria-valuenow", progressPercent);
+
+      drawingArea.className = "drawing-area";
+
+      if (today.scene) {
+        drawingArea.classList.add(today.scene);
+      }
+
+      previousButton.classList.toggle("hidden", currentDay === 0);
+
+      currentDot = alreadyCompleted ? today.points.length : 0;
+      finishedPicture = alreadyCompleted;
+
+      if (alreadyCompleted) {
+        message.textContent =
+          `You already connected ${today.word}! Great job! ⭐`;
+
+        message.className = "message success";
+      } else {
+        message.textContent =
+          "You may connect the dots, or use Next Day to keep going! 😊";
+
+        message.className = "message";
+      }
+
+      nextButton.classList.remove("hidden");
+
+      nextButton.textContent =
+        currentDay === days.length - 1
+          ? "Finish the Game! 🎉"
+          : "Next Day ➜";
+
+      drawDots();
+    }
+
+    function drawDots() {
+      const today = days[currentDay];
+
+      dotSvg.innerHTML = "";
+
+      for (let i = 1; i < currentDot; i++) {
+        drawLine(today.points[i - 1], today.points[i]);
+      }
+
+      if (finishedPicture) {
+        drawLine(
+          today.points[today.points.length - 1],
+          today.points[0]
+        );
+      }
+
+      today.points.forEach((point, index) => {
+        const circle = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "circle"
+        );
+
+        circle.setAttribute("cx", point[0]);
+        circle.setAttribute("cy", point[1]);
+
+        /* Larger dots for easier phone tapping */
+        circle.setAttribute("r", "22");
+
+        circle.setAttribute(
+          "class",
+          index < currentDot ? "dot completed" : "dot"
+        );
+
+        circle.setAttribute(
+          "aria-label",
+          `Dot ${index + 1}${
+            index === currentDot ? ", next dot" : ""
+          }`
+        );
+
+        circle.addEventListener("click", () => {
+          tapDot(index, circle);
+        });
+
+        dotSvg.appendChild(circle);
+
+        const number = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "text"
+        );
+
+        number.setAttribute("x", point[0]);
+        number.setAttribute("y", point[1] + 1);
+        number.setAttribute("class", "dot-number");
+
+        number.textContent = index + 1;
+
+        dotSvg.appendChild(number);
+      });
+
+      if (finishedPicture) {
+        showFinishedPicture();
+      }
+    }
+
+    function drawLine(startPoint, endPoint) {
+      const line = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "line"
+      );
+
+      line.setAttribute("x1", startPoint[0]);
+      line.setAttribute("y1", startPoint[1]);
+      line.setAttribute("x2", endPoint[0]);
+      line.setAttribute("y2", endPoint[1]);
+      line.setAttribute("class", "line");
+
+      dotSvg.appendChild(line);
+    }
+
+    function tapDot(index, circle) {
+      if (finishedPicture) {
+        return;
+      }
+
+      if (index === currentDot) {
+        currentDot++;
+        drawDots();
+
+        if (currentDot === days[currentDay].points.length) {
+          completePicture();
+        }
+      } else {
+        circle.classList.add("wrong");
+
+        message.textContent =
+          `Try again! Find Dot ${currentDot + 1}. 😊`;
+
+        message.className = "message try";
+
+        setTimeout(() => {
+          circle.classList.remove("wrong");
+        }, 400);
+      }
+    }
+
+    function completePicture() {
+      finishedPicture = true;
+
+      if (!completedDays.has(currentDay)) {
+        completedDays.add(currentDay);
+
+        score = completedDays.size;
+        scoreText.textContent = score;
+      }
+
+      const progressPercent = Math.round(
+        ((currentDay + 1) / days.length) * 100
+      );
+
+      message.textContent =
+        `Wonderful! God made ${days[currentDay].word}! ⭐`;
+
+      message.className = "message success";
+
+      progressBar.style.width = `${progressPercent}%`;
+      progressWrap.setAttribute("aria-valuenow", progressPercent);
+
+      drawDots();
+      makeConfetti();
+    }
+
+    function showFinishedPicture() {
+      const picture = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "text"
+      );
+
+      picture.setAttribute("x", "200");
+      picture.setAttribute("y", "390");
+      picture.setAttribute("class", "finish-picture");
+
+      picture.textContent = days[currentDay].emoji;
+
+      dotSvg.appendChild(picture);
+    }
+
+    function nextDay() {
+      stopReading();
+
+      currentDay++;
+
+      if (currentDay >= days.length) {
+        showFinishScreen();
+      } else {
+        showDay();
+      }
+    }
+
+    function previousDay() {
+      if (currentDay > 0) {
+        stopReading();
+
+        currentDay--;
+        showDay();
+      }
+    }
+
+    function showFinishScreen() {
+      stopReading();
+
+      progressBar.style.width = "100%";
+      progressWrap.setAttribute("aria-valuenow", "100");
+
+      gameScreen.classList.add("hidden");
+      finishedScreen.classList.remove("hidden");
+
+      makeConfetti();
+      setTimeout(makeConfetti, 500);
+    }
+
+    function backToGame() {
+      finishedScreen.classList.add("hidden");
+      gameScreen.classList.remove("hidden");
+
+      currentDay = days.length - 1;
+
+      showDay();
+    }
+
+    function makeConfetti() {
+      const colors = [
+        "#f66fa5",
+        "#ffd84d",
+        "#55bb65",
+        "#57c7f3",
+        "#8b70e8",
+        "#ff9b52"
+      ];
+
+      for (let i = 0; i < 35; i++) {
+        const confetti = document.createElement("div");
+
+        confetti.className = "confetti";
+
+        confetti.style.left = `${Math.random() * 100}vw`;
+
+        confetti.style.background =
+          colors[Math.floor(Math.random() * colors.length)];
+
+        confetti.style.animationDuration =
+          `${2 + Math.random() * 1.5}s`;
+
+        document.body.appendChild(confetti);
+
+        setTimeout(() => {
+          confetti.remove();
+        }, 4000);
+      }
+    }
+
+    updateMusicButton();
+    updateReadButton();
+  </script>
+</body>
+</html>
