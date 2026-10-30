@@ -36,7 +36,7 @@
       overflow-x: hidden;
     }
 
-    /* Start screen: needed because browsers require a user click before audio plays. */
+    /* Start screen */
     .start-screen {
       position: fixed;
       inset: 0;
@@ -54,7 +54,7 @@
       border: 4px solid var(--ink);
       border-radius: 24px;
       text-align: center;
-      background: #fffdf5;
+      background: var(--paper);
       box-shadow: 0 12px 0 rgba(37, 49, 61, 0.18);
     }
 
@@ -94,7 +94,7 @@
       box-shadow: 0 1px 0 rgba(37, 49, 61, 0.24);
     }
 
-    /* Main game */
+    /* Main game area */
     .app {
       width: min(1200px, 100%);
       min-height: 100dvh;
@@ -112,10 +112,6 @@
       align-items: center;
     }
 
-    .heading {
-      min-width: 0;
-    }
-
     .heading h1 {
       margin: 0;
       font-size: clamp(1.5rem, 4vw, 2.5rem);
@@ -129,7 +125,6 @@
 
     .game-layout {
       flex: 1;
-      min-height: 0;
       display: grid;
       grid-template-columns: minmax(0, 1fr) 250px;
       gap: clamp(10px, 2vw, 22px);
@@ -152,7 +147,7 @@
       max-height: 72dvh;
     }
 
-    /* Coloring-page areas */
+    /* Picture coloring areas */
     .drop-zone {
       fill: #ffffff;
       stroke: var(--ink);
@@ -181,8 +176,9 @@
       pointer-events: none;
     }
 
+    /* Color cards */
     .palette {
-      padding: 14px;
+      padding: 12px;
       border: 4px solid var(--ink);
       border-radius: 18px;
       background: var(--panel);
@@ -195,16 +191,28 @@
       font-size: 1.2rem;
     }
 
+    /* Card and speaker emoji remain side-by-side. */
+    .color-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 44px;
+      gap: 6px;
+      align-items: center;
+      margin: 6px 0;
+    }
+
     .color-card {
       width: 100%;
-      margin: 8px 0;
-      padding: 10px 8px;
+      min-height: 40px;
+      margin: 0;
+      padding: 8px 6px;
       border: 3px solid var(--ink);
-      border-radius: 11px;
+      border-radius: 10px;
       color: #111;
-      font-size: 0.92rem;
+      font-size: 0.82rem;
       font-weight: 800;
       text-align: center;
+      display: grid;
+      place-items: center;
       cursor: grab;
       user-select: none;
       touch-action: none;
@@ -225,6 +233,46 @@
       cursor: default;
       text-decoration: line-through;
       transform: none;
+    }
+
+    .read-button {
+      width: 44px;
+      height: 40px;
+      min-width: 44px;
+      padding: 0;
+      border: 3px solid var(--ink);
+      border-radius: 10px;
+      background: #ffffff;
+      color: var(--ink);
+      font-size: 1.05rem;
+      cursor: pointer;
+      touch-action: manipulation;
+      box-shadow: 0 3px 0 rgba(37, 49, 61, 0.24);
+    }
+
+    .read-button:hover {
+      background: #fff0a8;
+      transform: translateY(-1px);
+    }
+
+    .read-button:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 rgba(37, 49, 61, 0.24);
+    }
+
+    .read-button.speaking {
+      background: #bfe9ff;
+      animation: read-pulse 700ms ease-in-out infinite alternate;
+    }
+
+    @keyframes read-pulse {
+      from {
+        transform: scale(1);
+      }
+
+      to {
+        transform: scale(1.08);
+      }
     }
 
     .bottom-area {
@@ -262,7 +310,6 @@
       background: #ffffff;
     }
 
-    /* Temporary card while dragging with mouse, tablet, or phone */
     .drag-copy {
       position: fixed;
       z-index: 9999;
@@ -272,7 +319,7 @@
       opacity: 0.92;
     }
 
-    /* Completion celebration */
+    /* Completion screen */
     .completion-banner {
       position: fixed;
       inset: 0;
@@ -292,7 +339,7 @@
       padding: 28px 22px;
       border: 5px solid var(--ink);
       border-radius: 26px;
-      background: #fffdf5;
+      background: var(--paper);
       text-align: center;
       box-shadow: 0 12px 0 rgba(37, 49, 61, 0.22);
       animation: pop-in 450ms ease-out;
@@ -311,9 +358,26 @@
     }
 
     .completion-card p {
-      margin: 0 0 18px;
-      font-size: 1.08rem;
+      margin: 0 0 14px;
+      font-size: 1.05rem;
       font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .completion-actions {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .exit-button {
+      background: #ffd8d4;
+    }
+
+    .exit-button:hover {
+      background: #ffbdb6;
     }
 
     @keyframes pop-in {
@@ -321,6 +385,7 @@
         opacity: 0;
         transform: scale(0.65);
       }
+
       to {
         opacity: 1;
         transform: scale(1);
@@ -331,11 +396,13 @@
       from {
         transform: rotate(-8deg) scale(0.95);
       }
+
       to {
         transform: rotate(8deg) scale(1.08);
       }
     }
 
+    /* Phone and tablet */
     @media (max-width: 760px) {
       .app {
         padding: 10px;
@@ -356,30 +423,36 @@
 
       .palette {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 7px;
+        grid-template-columns: 1fr;
+        gap: 5px;
         padding: 10px;
       }
 
       .palette h2 {
-        grid-column: 1 / -1;
         margin-bottom: 2px;
       }
 
-      .color-card {
+      .color-item {
+        width: 100%;
         margin: 0;
-        min-height: 48px;
-        display: grid;
-        place-items: center;
-        font-size: 0.82rem;
+        grid-template-columns: minmax(0, 1fr) 44px;
+      }
+
+      .color-card {
+        min-height: 42px;
+        padding: 7px 5px;
+        font-size: 0.8rem;
+      }
+
+      .read-button {
+        width: 44px;
+        height: 42px;
+        min-width: 44px;
+        font-size: 1rem;
       }
 
       .bottom-area {
         grid-template-columns: 1fr;
-      }
-
-      .bottom-area .controls {
-        justify-content: center;
       }
 
       svg {
@@ -387,6 +460,7 @@
       }
     }
 
+    /* Small computer screen */
     @media (max-height: 700px) and (min-width: 761px) {
       .app {
         gap: 8px;
@@ -397,14 +471,18 @@
         display: none;
       }
 
-      .color-card {
-        margin: 5px 0;
-        padding: 7px;
-        font-size: 0.82rem;
+      .color-item {
+        margin: 4px 0;
       }
 
-      .palette {
-        padding: 10px;
+      .color-card {
+        min-height: 34px;
+        padding: 5px;
+        font-size: 0.76rem;
+      }
+
+      .read-button {
+        height: 34px;
       }
 
       svg {
@@ -419,10 +497,13 @@
   <section class="start-screen" id="startScreen">
     <div class="start-box">
       <h1>God Created Heaven and Earth Color Puzzle</h1>
-<p>
-  Genesis 1 and 2. Drag the colored cards onto the matching outlined parts
-  of the picture. Turn on the music and complete God’s beautiful creation!
-</p>
+
+      <p>
+        Genesis 1 and 2. Drag the colored cards onto the matching outlined
+        parts of the picture. Turn on the music and complete God’s beautiful
+        creation!
+      </p>
+
       <button class="start-button" id="startButton" type="button">
         Start Game and Music ▶
       </button>
@@ -433,16 +514,29 @@
   <section class="completion-banner" id="completionBanner" aria-live="assertive">
     <div class="completion-card">
       <div class="hands">👏</div>
+
       <h2>Hooray!</h2>
-<p>You completed God Created Heaven and Earth Color Puzzle!</p>
-<p>“In the beginning God created the heaven and the earth.” — Genesis 1:1</p>
-      <button class="start-button" id="playAgainButton" type="button">
-        Play Again
-      </button>
+
+      <p>You completed God Created Heaven and Earth Color Puzzle!</p>
+
+      <p>
+        “In the beginning God created the heaven and the earth.”
+        — Genesis 1:1
+      </p>
+
+      <div class="completion-actions">
+        <button class="start-button" id="playAgainButton" type="button">
+          Play Again
+        </button>
+
+        <button class="control-button exit-button" id="exitButton" type="button">
+          Exit
+        </button>
+      </div>
     </div>
   </section>
 
-  <!-- Audio files -->
+  <!-- Sound files -->
   <audio id="backgroundMusic" loop preload="auto">
     <source src="happy-children.mp3" type="audio/mpeg" />
   </audio>
@@ -459,10 +553,11 @@
     <header class="top-bar">
       <div class="heading">
         <h1>God Created Heaven and Earth Color Puzzle</h1>
-<p class="instructions">
-  Genesis 1 and 2. Drag each color card to its matching outlined area.
-  Complete all seven colors to reveal God’s beautiful creation.
-</p>
+
+        <p class="instructions">
+          Genesis 1 and 2. Drag each color card to its matching outlined area.
+          Press the 🔊 button to hear the name of a color card.
+        </p>
       </div>
 
       <div class="controls">
@@ -473,9 +568,9 @@
     </header>
 
     <section class="game-layout">
-      <div class="scene-wrap" id="sceneWrap">
+      <div class="scene-wrap">
         <svg viewBox="0 0 800 600" role="img" aria-label="Garden coloring puzzle">
-          <!-- Blue sky -->
+          <!-- Sky -->
           <rect
             class="drop-zone"
             data-color="sky"
@@ -485,7 +580,7 @@
             height="600"
           />
 
-          <!-- Sun outline -->
+          <!-- Sun -->
           <circle class="outline" cx="685" cy="82" r="38" />
           <path
             class="outline"
@@ -543,7 +638,7 @@
                C557 290,527 284,505 270 Z"
           />
 
-          <!-- Purple fruit: left tree -->
+          <!-- Purple fruit -->
           <g class="drop-zone" data-color="purple-fruit">
             <circle cx="116" cy="196" r="18" />
             <circle cx="161" cy="143" r="18" />
@@ -552,7 +647,7 @@
             <circle cx="275" cy="225" r="18" />
           </g>
 
-          <!-- Red fruit: right tree -->
+          <!-- Red fruit -->
           <g class="drop-zone" data-color="red-fruit">
             <circle cx="543" cy="205" r="18" />
             <circle cx="581" cy="149" r="18" />
@@ -581,7 +676,6 @@
 
           <!-- People outlines -->
           <g class="outline">
-            <!-- Left person -->
             <circle cx="332" cy="228" r="27" />
             <path d="M321 254 C304 284,302 357,319 405" />
             <path d="M344 254 C362 285,368 357,354 405" />
@@ -589,7 +683,6 @@
             <path d="M347 281 C365 300,380 313,399 316" />
             <path d="M318 405 L306 453 M354 405 L369 453" />
 
-            <!-- Right person -->
             <circle cx="401" cy="230" r="28" />
             <path d="M386 258 C373 292,373 359,387 406" />
             <path d="M416 258 C438 290,440 359,426 407" />
@@ -597,7 +690,6 @@
             <path d="M388 282 C370 298,357 309,347 320" />
             <path d="M388 407 L380 454 M426 407 L442 454" />
 
-            <!-- Faces -->
             <path d="M322 229 q7 6 14 0 M392 231 q7 6 14 0" />
             <path d="M324 242 q8 8 17 0 M393 244 q8 8 17 0" />
           </g>
@@ -617,7 +709,6 @@
                L800 600 L0 600 Z"
           />
 
-          <!-- Ground lines -->
           <path
             class="outline"
             d="M25 520 C160 496,265 530,395 512
@@ -626,47 +717,71 @@
         </svg>
       </div>
 
+      <!-- Color cards -->
       <aside class="palette" aria-label="Color cards">
         <h2>Color Cards</h2>
 
-        <div class="color-card" data-color="sky" style="background:#8ed6f5;">
-          Blue Sky
+        <div class="color-item">
+          <div class="color-card" data-color="sky" style="background:#8ed6f5;">
+            Blue Sky
+          </div>
+          <button class="read-button" type="button" data-read="Blue Sky" aria-label="Read Blue Sky">
+            🔊
+          </button>
         </div>
 
-        <div class="color-card" data-color="trunk" style="background:#9a633b;">
-          Brown Tree Trunks
+        <div class="color-item">
+          <div class="color-card" data-color="trunk" style="background:#9a633b;">
+            Brown Tree Trunks
+          </div>
+          <button class="read-button" type="button" data-read="Brown Tree Trunks" aria-label="Read Brown Tree Trunks">
+            🔊
+          </button>
         </div>
 
-        <div class="color-card" data-color="leaves" style="background:#55ae55;">
-          Green Tree Leaves
+        <div class="color-item">
+          <div class="color-card" data-color="leaves" style="background:#55ae55;">
+            Green Tree Leaves
+          </div>
+          <button class="read-button" type="button" data-read="Green Tree Leaves" aria-label="Read Green Tree Leaves">
+            🔊
+          </button>
         </div>
 
-        <div
-          class="color-card"
-          data-color="purple-fruit"
-          style="background:#a85bd7; color:white;"
-        >
-          Purple Fruit
+        <div class="color-item">
+          <div class="color-card" data-color="purple-fruit" style="background:#a85bd7; color:white;">
+            Purple Fruit
+          </div>
+          <button class="read-button" type="button" data-read="Purple Fruit" aria-label="Read Purple Fruit">
+            🔊
+          </button>
         </div>
 
-        <div
-          class="color-card"
-          data-color="red-fruit"
-          style="background:#ee5b55;"
-        >
-          Red Fruit
+        <div class="color-item">
+          <div class="color-card" data-color="red-fruit" style="background:#ee5b55;">
+            Red Fruit
+          </div>
+          <button class="read-button" type="button" data-read="Red Fruit" aria-label="Read Red Fruit">
+            🔊
+          </button>
         </div>
 
-        <div
-          class="color-card"
-          data-color="hair"
-          style="background:#59381f; color:white;"
-        >
-          Brown Hair
+        <div class="color-item">
+          <div class="color-card" data-color="hair" style="background:#59381f; color:white;">
+            Brown Hair
+          </div>
+          <button class="read-button" type="button" data-read="Brown Hair" aria-label="Read Brown Hair">
+            🔊
+          </button>
         </div>
 
-        <div class="color-card" data-color="grass" style="background:#6bbc50;">
-          Green Bushes and Grass
+        <div class="color-item">
+          <div class="color-card" data-color="grass" style="background:#6bbc50;">
+            Green Bushes and Grass
+          </div>
+          <button class="read-button" type="button" data-read="Green Bushes and Grass" aria-label="Read Green Bushes and Grass">
+            🔊
+          </button>
         </div>
       </aside>
     </section>
@@ -697,13 +812,14 @@
 
     const cards = document.querySelectorAll(".color-card");
     const zones = document.querySelectorAll(".drop-zone");
+    const readButtons = document.querySelectorAll(".read-button");
 
     const startScreen = document.getElementById("startScreen");
     const startButton = document.getElementById("startButton");
     const musicButton = document.getElementById("musicButton");
     const resetButton = document.getElementById("resetButton");
     const playAgainButton = document.getElementById("playAgainButton");
-
+    const exitButton = document.getElementById("exitButton");
     const completionBanner = document.getElementById("completionBanner");
     const message = document.getElementById("message");
 
@@ -717,7 +833,6 @@
     let musicOn = true;
     let completedColors = new Set();
 
-    // Set volume levels. Change these numbers from 0.0 to 1.0 if needed.
     backgroundMusic.volume = 0.28;
     clappingSound.volume = 0.9;
     hooraySound.volume = 0.9;
@@ -729,7 +844,10 @@
 
     function startMusic() {
       backgroundMusic.play().catch(() => {
-        setMessage("Music could not start. Check that happy-children.mp3 is in this folder.", true);
+        setMessage(
+          "Music could not start. Check that happy-children.mp3 is in this folder.",
+          true
+        );
       });
 
       musicOn = true;
@@ -753,6 +871,7 @@
       hooraySound.currentTime = 0;
 
       clappingSound.play().catch(() => {});
+
       setTimeout(() => {
         hooraySound.play().catch(() => {});
       }, 350);
@@ -764,7 +883,9 @@
         dragCopy = null;
       }
 
-      zones.forEach(zone => zone.classList.remove("hovered"));
+      zones.forEach(zone => {
+        zone.classList.remove("hovered");
+      });
     }
 
     function getZoneAtPoint(x, y) {
@@ -773,7 +894,9 @@
     }
 
     function updateHoverZone(x, y) {
-      zones.forEach(zone => zone.classList.remove("hovered"));
+      zones.forEach(zone => {
+        zone.classList.remove("hovered");
+      });
 
       const zone = getZoneAtPoint(x, y);
 
@@ -801,7 +924,10 @@
       const remaining = cards.length - completedColors.size;
 
       if (remaining === 0) {
-        setMessage("Wonderful! You completed God Created Heaven and Earth Color Puzzle!");
+        setMessage(
+          "Wonderful! You completed God Created Heaven and Earth Color Puzzle!"
+        );
+
         playCompletionSounds();
 
         setTimeout(() => {
@@ -832,14 +958,66 @@
       clappingSound.currentTime = 0;
       hooraySound.currentTime = 0;
 
-      setMessage("Drag a color card to the correct outlined area.");
+      setMessage(
+        "Genesis 1 and 2: Drag a color card to the correct outlined area."
+      );
     }
+
+    function readColorCard(text, button) {
+      if (!("speechSynthesis" in window)) {
+        setMessage("Read-aloud is not supported by this browser.", true);
+        return;
+      }
+
+      window.speechSynthesis.cancel();
+
+      readButtons.forEach(readButton => {
+        readButton.classList.remove("speaking");
+      });
+
+      const speech = new SpeechSynthesisUtterance(text);
+
+      speech.rate = 0.85;
+      speech.pitch = 1.1;
+      speech.volume = 1;
+
+      button.classList.add("speaking");
+
+      speech.onend = () => {
+        button.classList.remove("speaking");
+      };
+
+      speech.onerror = () => {
+        button.classList.remove("speaking");
+      };
+
+      window.speechSynthesis.speak(speech);
+    }
+
+    function exitGame() {
+  backgroundMusic.pause();
+  clappingSound.pause();
+  hooraySound.pause();
+
+  backgroundMusic.currentTime = 0;
+  clappingSound.currentTime = 0;
+  hooraySound.currentTime = 0;
+
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
+  }
+
+  window.close();
+}
 
     startButton.addEventListener("click", () => {
       gameStarted = true;
       startScreen.style.display = "none";
       startMusic();
-      setMessage("Drag a color card to the correct outlined area.");
+
+      setMessage(
+        "Genesis 1 and 2: Drag a color card to the correct outlined area."
+      );
     });
 
     musicButton.addEventListener("click", toggleMusic);
@@ -854,6 +1032,19 @@
       }
     });
 
+    exitButton.addEventListener("click", exitGame);
+
+    /* Read color name only when the speaker emoji is clicked. */
+    readButtons.forEach(button => {
+      button.addEventListener("click", event => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        readColorCard(button.dataset.read, button);
+      });
+    });
+
+    /* Drag-and-drop color cards */
     cards.forEach(card => {
       card.addEventListener("pointerdown", event => {
         if (!gameStarted || card.classList.contains("used")) return;
