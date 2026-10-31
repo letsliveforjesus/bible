@@ -8,14 +8,11 @@
   <style>
     :root {
       --navy: #173b70;
-      --blue: #6ed7ff;
-      --sky: #c8f1ff;
       --yellow: #ffd84d;
       --green: #52bd65;
       --pink: #ff8eb8;
       --purple: #9d7bff;
       --orange: #ff9b52;
-      --cream: #fffdf4;
       --ink: #24334a;
     }
 
@@ -41,7 +38,6 @@
       overflow-x: hidden;
     }
 
-    /* Compact computer layout */
     .app {
       width: min(840px, calc(100% - 20px));
       margin: 8px auto 16px;
@@ -309,6 +305,14 @@
       box-shadow: 0 2px 0 #c8d7df;
     }
 
+    .choice:disabled {
+      cursor: default;
+    }
+
+    .choice:disabled:hover {
+      transform: none;
+    }
+
     .choice .emoji {
       display: block;
       font-size: 2.7rem;
@@ -343,35 +347,68 @@
       color: #c64242;
     }
 
+    .navigation-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
     .next-button,
+    .back-button,
     .start-button,
-    .restart-button {
-      display: block;
-      margin: 10px auto 0;
+    .restart-button,
+    .exit-button {
       border: none;
       border-radius: 999px;
       padding: 11px 19px;
-      background: linear-gradient(180deg, #ff9fc2, #ed5e99);
       color: white;
       font: inherit;
       font-size: 1rem;
       font-weight: bold;
       cursor: pointer;
-      box-shadow: 0 5px 0 #be3f73;
       transition: transform 0.15s ease;
     }
 
+    .next-button,
+    .start-button,
+    .restart-button {
+      background: linear-gradient(180deg, #ff9fc2, #ed5e99);
+      box-shadow: 0 5px 0 #be3f73;
+    }
+
+    .back-button {
+      background: linear-gradient(180deg, #8ab8ff, #4f7fd0);
+      box-shadow: 0 5px 0 #365f9e;
+    }
+
+    .exit-button {
+      display: block;
+      margin: 10px auto 0;
+      background: linear-gradient(180deg, #ff8e8e, #d94b4b);
+      box-shadow: 0 5px 0 #a93232;
+    }
+
     .next-button:hover,
+    .back-button:hover,
     .start-button:hover,
-    .restart-button:hover {
+    .restart-button:hover,
+    .exit-button:hover {
       transform: translateY(-3px);
     }
 
     .next-button:active,
+    .back-button:active,
     .start-button:active,
-    .restart-button:active {
+    .restart-button:active,
+    .exit-button:active {
       transform: translateY(2px);
-      box-shadow: 0 2px 0 #be3f73;
+    }
+
+    .back-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
     }
 
     .hidden {
@@ -515,7 +552,6 @@
       }
     }
 
-    /* Phone layout */
     @media (max-width: 600px) {
       .app {
         width: calc(100% - 12px);
@@ -630,12 +666,17 @@
         font-size: 0.92rem;
       }
 
+      .navigation-buttons {
+        gap: 7px;
+      }
+
       .next-button,
+      .back-button,
       .start-button,
-      .restart-button {
-        margin-top: 8px;
-        padding: 10px 15px;
-        font-size: 0.95rem;
+      .restart-button,
+      .exit-button {
+        padding: 10px 13px;
+        font-size: 0.9rem;
       }
 
       .seven-days {
@@ -649,7 +690,6 @@
       }
     }
 
-    /* Short phone screens or landscape mode */
     @media (max-height: 650px) {
       .subtitle {
         display: none;
@@ -668,10 +708,22 @@
 </head>
 
 <body>
-  <!-- Keep happy-children.mp3 in the same folder as this HTML file -->
+  <!-- Keep all MP3 files in the same folder as this HTML file -->
   <audio id="backgroundMusic" loop preload="metadata">
     <source src="happy-children.mp3" type="audio/mpeg" />
     Your browser does not support background music.
+  </audio>
+
+  <audio id="correctSound" preload="auto">
+    <source src="clapping.mp3" type="audio/mpeg" />
+  </audio>
+
+  <audio id="wrongSound" preload="auto">
+    <source src="wrong-answer.mp3" type="audio/mpeg" />
+  </audio>
+
+  <audio id="hooraySound" preload="auto">
+    <source src="hooray.mp3" type="audio/mpeg" />
   </audio>
 
   <main class="app">
@@ -706,7 +758,7 @@
 
         <p>Can you help remember what God created on each day?</p>
 
-        <button class="start-button" id="startButton">
+        <button class="start-button" id="startButton" type="button">
           Start the Adventure! 🚀
         </button>
       </div>
@@ -755,9 +807,21 @@
 
         <div class="message" id="message" aria-live="polite"></div>
 
-        <button class="next-button hidden" id="nextButton">
-          Next Day ➜
-        </button>
+        <!-- These buttons work even before an answer is selected -->
+        <div class="navigation-buttons">
+          <button
+            class="back-button"
+            id="backButton"
+            type="button"
+            disabled
+          >
+            ← Previous Day
+          </button>
+
+          <button class="next-button" id="nextButton" type="button">
+            Next Day ➜
+          </button>
+        </div>
       </div>
 
       <!-- Finish Screen -->
@@ -777,8 +841,12 @@
           On Day 7, God rested because His work was complete—not because He was tired.
         </div>
 
-        <button class="restart-button" id="restartButton">
+        <button class="restart-button" id="restartButton" type="button">
           Play Again! 🔄
+        </button>
+
+        <button class="exit-button" id="exitButton" type="button">
+          Exit Game ✖
         </button>
       </div>
     </section>
@@ -899,11 +967,17 @@
 
     const startButton = document.getElementById("startButton");
     const restartButton = document.getElementById("restartButton");
+    const backButton = document.getElementById("backButton");
     const nextButton = document.getElementById("nextButton");
+    const exitButton = document.getElementById("exitButton");
 
     const musicButton = document.getElementById("musicButton");
     const readButton = document.getElementById("readButton");
+
     const backgroundMusic = document.getElementById("backgroundMusic");
+    const correctSound = document.getElementById("correctSound");
+    const wrongSound = document.getElementById("wrongSound");
+    const hooraySound = document.getElementById("hooraySound");
 
     const dayBadge = document.getElementById("dayBadge");
     const progressFill = document.getElementById("progressFill");
@@ -923,6 +997,9 @@
     let musicPlaying = false;
     let isReading = false;
 
+    /* Keeps track of days answered correctly. */
+    const answeredDays = new Set();
+
     /* -----------------------------
        Background Music Controls
     ------------------------------ */
@@ -937,8 +1014,6 @@
     }
 
     function startBackgroundMusic() {
-      if (!backgroundMusic) return;
-
       backgroundMusic.volume = 0.18;
 
       backgroundMusic
@@ -958,10 +1033,7 @@
     }
 
     function stopBackgroundMusic() {
-      if (backgroundMusic) {
-        backgroundMusic.pause();
-      }
-
+      backgroundMusic.pause();
       musicPlaying = false;
       updateMusicButton();
     }
@@ -972,6 +1044,44 @@
       } else {
         startBackgroundMusic();
       }
+    }
+
+    /* -----------------------------
+       Sound Effects
+    ------------------------------ */
+
+    function playCorrectSound() {
+      correctSound.currentTime = 0;
+      correctSound.volume = 0.65;
+
+      correctSound.play().catch(() => {
+        console.log("Could not play clapping.mp3");
+      });
+    }
+
+    function playWrongSound() {
+      wrongSound.currentTime = 0;
+      wrongSound.volume = 0.5;
+
+      wrongSound.play().catch(() => {
+        console.log("Could not play wrong-answer.mp3");
+      });
+    }
+
+    function playFinishSounds() {
+      correctSound.currentTime = 0;
+      hooraySound.currentTime = 0;
+
+      correctSound.volume = 0.65;
+      hooraySound.volume = 0.7;
+
+      correctSound.play().catch(() => {
+        console.log("Could not play clapping.mp3");
+      });
+
+      hooraySound.play().catch(() => {
+        console.log("Could not play hooray.mp3");
+      });
     }
 
     /* -----------------------------
@@ -1054,6 +1164,8 @@
       score = 0;
       answered = false;
 
+      answeredDays.clear();
+
       scoreElement.textContent = score;
 
       welcomeScreen.classList.add("hidden");
@@ -1063,10 +1175,21 @@
       renderDay();
     }
 
+    function updateNavigationButtons() {
+      backButton.disabled = currentDay === 0;
+
+      nextButton.textContent =
+        currentDay === days.length - 1
+          ? "Finish Adventure! 🎉"
+          : "Next Day ➜";
+    }
+
     function renderDay() {
       const today = days[currentDay];
 
-      answered = false;
+      /* Completed questions remain completed if the child goes back. */
+      answered = answeredDays.has(currentDay);
+
       stopReading();
 
       dayBadge.textContent = `Day ${today.day}`;
@@ -1090,8 +1213,6 @@
       message.textContent = "";
       message.className = "message";
 
-      nextButton.classList.add("hidden");
-
       choices.innerHTML = "";
 
       const shuffledOptions = [...today.options].sort(
@@ -1107,12 +1228,22 @@
           <span>${option.label}</span>
         `;
 
+        if (answered) {
+          button.disabled = true;
+
+          if (option.label === today.correct) {
+            button.classList.add("correct");
+          }
+        }
+
         button.addEventListener("click", () => {
           chooseAnswer(button, option.label);
         });
 
         choices.appendChild(button);
       });
+
+      updateNavigationButtons();
     }
 
     function chooseAnswer(button, selectedAnswer) {
@@ -1122,9 +1253,13 @@
 
       if (selectedAnswer === today.correct) {
         answered = true;
-        score += 1;
 
-        scoreElement.textContent = score;
+        /* A star can be earned only once for each day. */
+        if (!answeredDays.has(currentDay)) {
+          answeredDays.add(currentDay);
+          score += 1;
+          scoreElement.textContent = score;
+        }
 
         button.classList.add("correct");
 
@@ -1135,16 +1270,12 @@
           choice.disabled = true;
         });
 
+        playCorrectSound();
         createConfetti();
-
-        nextButton.classList.remove("hidden");
-
-        nextButton.textContent =
-          currentDay === days.length - 1
-            ? "Finish Adventure! 🎉"
-            : "Next Day ➜";
       } else {
         button.classList.add("wrong");
+
+        playWrongSound();
 
         message.textContent =
           "Nice try! Look at the story and try again. 😊";
@@ -1154,6 +1285,15 @@
         setTimeout(() => {
           button.classList.remove("wrong");
         }, 450);
+      }
+    }
+
+    function previousDay() {
+      stopReading();
+
+      if (currentDay > 0) {
+        currentDay -= 1;
+        renderDay();
       }
     }
 
@@ -1206,8 +1346,19 @@
         sevenDays.appendChild(box);
       });
 
+      playFinishSounds();
+
       createConfetti();
       setTimeout(createConfetti, 500);
+    }
+
+    function exitGame() {
+      stopReading();
+      stopBackgroundMusic();
+
+      gameScreen.classList.add("hidden");
+      finishScreen.classList.add("hidden");
+      welcomeScreen.classList.remove("hidden");
     }
 
     function createConfetti() {
@@ -1248,7 +1399,11 @@
 
     startButton.addEventListener("click", startGame);
     restartButton.addEventListener("click", startGame);
+
+    backButton.addEventListener("click", previousDay);
     nextButton.addEventListener("click", nextDay);
+
+    exitButton.addEventListener("click", exitGame);
 
     musicButton.addEventListener("click", toggleBackgroundMusic);
     readButton.addEventListener("click", readCurrentDay);
