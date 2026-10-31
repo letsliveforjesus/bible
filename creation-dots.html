@@ -35,7 +35,6 @@
       overflow-x: hidden;
     }
 
-    /* Compact computer layout */
     .container {
       width: min(820px, calc(100% - 20px));
       margin: 10px auto 20px;
@@ -430,7 +429,6 @@
       }
     }
 
-    /* Phone layout */
     @media (max-width: 600px) {
       .container {
         width: calc(100% - 14px);
@@ -470,7 +468,6 @@
       }
     }
 
-    /* Short phone screens and landscape phones */
     @media (max-height: 650px) and (max-width: 900px) {
       header p {
         display: none;
@@ -493,10 +490,22 @@
 </head>
 
 <body>
-  <!-- Keep happy-children.mp3 in the same folder as this HTML file -->
+  <!-- Keep all MP3 files in the same folder as this HTML file -->
   <audio id="backgroundMusic" loop preload="metadata">
     <source src="happy-children.mp3" type="audio/mpeg" />
     Your browser does not support background music.
+  </audio>
+
+  <audio id="correctSound" preload="auto">
+    <source src="clapping.mp3" type="audio/mpeg" />
+  </audio>
+
+  <audio id="wrongSound" preload="auto">
+    <source src="wrong-answer.mp3" type="audio/mpeg" />
+  </audio>
+
+  <audio id="hooraySound" preload="auto">
+    <source src="hooray.mp3" type="audio/mpeg" />
   </audio>
 
   <main class="container">
@@ -518,7 +527,6 @@
     </header>
 
     <section class="game-box">
-      <!-- Welcome Screen -->
       <div id="welcomeScreen" class="welcome">
         <div class="welcome-art">🌍⭐🦁</div>
 
@@ -529,12 +537,11 @@
           something God made each day!
         </div>
 
-        <button id="startButton" class="center-button">
+        <button id="startButton" class="center-button" type="button">
           Start the Game! 🚀
         </button>
       </div>
 
-      <!-- Game Screen -->
       <div id="gameScreen" class="hidden">
         <div class="top-row">
           <div class="badge" id="dayBadge">Day 1</div>
@@ -595,17 +602,16 @@
         ></div>
 
         <div class="nav-buttons">
-          <button id="previousButton" class="hidden">
+          <button id="previousButton" class="hidden" type="button">
             ⬅ Go Back
           </button>
 
-          <button id="nextButton">
+          <button id="nextButton" type="button">
             Next Day ➜
           </button>
         </div>
       </div>
 
-      <!-- Finish Screen -->
       <div id="finishedScreen" class="finished hidden">
         <div class="finished-art">🎉🌍✨</div>
 
@@ -630,11 +636,11 @@
         </div>
 
         <div class="nav-buttons">
-          <button id="backToGameButton">
+          <button id="backToGameButton" type="button">
             ⬅ Back to Day 7
           </button>
 
-          <button id="playAgainButton">
+          <button id="playAgainButton" type="button">
             Play Again! 🔄
           </button>
         </div>
@@ -833,7 +839,11 @@
 
     const musicButton = document.getElementById("musicButton");
     const readButton = document.getElementById("readButton");
+
     const backgroundMusic = document.getElementById("backgroundMusic");
+    const correctSound = document.getElementById("correctSound");
+    const wrongSound = document.getElementById("wrongSound");
+    const hooraySound = document.getElementById("hooraySound");
 
     const progressWrap = document.querySelector(".progress-wrap");
     const previousButton = document.getElementById("previousButton");
@@ -883,7 +893,6 @@
 
     function stopBackgroundMusic() {
       backgroundMusic.pause();
-
       musicPlaying = false;
       updateMusicButton();
     }
@@ -894,6 +903,44 @@
       } else {
         startBackgroundMusic();
       }
+    }
+
+    /* -----------------------------
+       Sound Effects
+    ------------------------------ */
+
+    function playCorrectSound() {
+      correctSound.currentTime = 0;
+      correctSound.volume = 0.65;
+
+      correctSound.play().catch(() => {
+        console.log("Could not play clapping.mp3");
+      });
+    }
+
+    function playWrongSound() {
+      wrongSound.currentTime = 0;
+      wrongSound.volume = 0.5;
+
+      wrongSound.play().catch(() => {
+        console.log("Could not play wrong-answer.mp3");
+      });
+    }
+
+    function playFinishSounds() {
+      correctSound.currentTime = 0;
+      hooraySound.currentTime = 0;
+
+      correctSound.volume = 0.65;
+      hooraySound.volume = 0.7;
+
+      correctSound.play().catch(() => {
+        console.log("Could not play clapping.mp3");
+      });
+
+      hooraySound.play().catch(() => {
+        console.log("Could not play hooray.mp3");
+      });
     }
 
     /* -----------------------------
@@ -1029,16 +1076,12 @@
       if (alreadyCompleted) {
         message.textContent =
           `You already connected ${today.word}! Great job! ⭐`;
-
         message.className = "message success";
       } else {
         message.textContent =
           "You may connect the dots, or use Next Day to keep going! 😊";
-
         message.className = "message";
       }
-
-      nextButton.classList.remove("hidden");
 
       nextButton.textContent =
         currentDay === days.length - 1
@@ -1072,8 +1115,6 @@
 
         circle.setAttribute("cx", point[0]);
         circle.setAttribute("cy", point[1]);
-
-        /* Larger dots for easier phone tapping */
         circle.setAttribute("r", "22");
 
         circle.setAttribute(
@@ -1102,7 +1143,6 @@
         number.setAttribute("x", point[0]);
         number.setAttribute("y", point[1] + 1);
         number.setAttribute("class", "dot-number");
-
         number.textContent = index + 1;
 
         dotSvg.appendChild(number);
@@ -1143,6 +1183,9 @@
       } else {
         circle.classList.add("wrong");
 
+        /* Plays wrong-answer.mp3 for an incorrect dot number. */
+        playWrongSound();
+
         message.textContent =
           `Try again! Find Dot ${currentDot + 1}. 😊`;
 
@@ -1175,6 +1218,9 @@
 
       progressBar.style.width = `${progressPercent}%`;
       progressWrap.setAttribute("aria-valuenow", progressPercent);
+
+      /* Plays clapping.mp3 whenever a picture is completed. */
+      playCorrectSound();
 
       drawDots();
       makeConfetti();
@@ -1225,6 +1271,9 @@
       gameScreen.classList.add("hidden");
       finishedScreen.classList.remove("hidden");
 
+      /* Plays hooray.mp3 and clapping.mp3 together at game completion. */
+      playFinishSounds();
+
       makeConfetti();
       setTimeout(makeConfetti, 500);
     }
@@ -1252,7 +1301,6 @@
         const confetti = document.createElement("div");
 
         confetti.className = "confetti";
-
         confetti.style.left = `${Math.random() * 100}vw`;
 
         confetti.style.background =
