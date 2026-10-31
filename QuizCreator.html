@@ -1,0 +1,1916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bible Quiz Creator</title>
+
+  <style>
+    :root {
+      --navy: #193b75;
+      --purple: #8d6be8;
+      --pink: #ed6e9f;
+      --yellow: #ffd84d;
+      --green: #52b967;
+      --blue: #56c7f2;
+      --red: #d94c55;
+      --ink: #26354d;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 10%, white 0 3px, transparent 4px),
+        radial-gradient(circle at 87% 14%, white 0 4px, transparent 5px),
+        linear-gradient(
+          180deg,
+          #84ddff 0%,
+          #ddf9ff 51%,
+          #d9efad 51%,
+          #9bd275 100%
+        );
+    }
+
+    .app {
+      width: min(980px, calc(100% - 18px));
+      margin: 8px auto 18px;
+    }
+
+    header {
+      padding: 5px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--navy);
+      font-size: clamp(1.65rem, 4.5vw, 2.65rem);
+      text-shadow: 2px 3px 0 white;
+    }
+
+    .subtitle {
+      margin: 4px auto 0;
+      font-size: clamp(0.85rem, 2.4vw, 1rem);
+      font-weight: bold;
+    }
+
+    .card {
+      padding: clamp(12px, 2.4vw, 20px);
+      border: 4px solid white;
+      border-radius: 20px;
+      background: rgba(255, 253, 245, 0.97);
+      box-shadow: 0 7px 0 rgba(25, 59, 117, 0.16);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .creator-title,
+    .finish-title {
+      margin: 0 0 7px;
+      color: var(--navy);
+      text-align: center;
+      font-size: clamp(1.35rem, 3.8vw, 1.95rem);
+    }
+
+    .intro-box,
+    .note-box {
+      margin: 10px 0;
+      padding: 10px 12px;
+      border-left: 6px solid var(--yellow);
+      border-radius: 12px;
+      background: #fff3bd;
+      text-align: center;
+      line-height: 1.35;
+    }
+
+    .form-box {
+      margin-top: 12px;
+      padding: 12px;
+      border: 3px solid #d8ccff;
+      border-radius: 16px;
+      background: #f1ecff;
+    }
+
+    label {
+      display: block;
+      margin: 9px 0 4px;
+      color: var(--navy);
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 9px;
+      border: 2px solid #c9dbe5;
+      border-radius: 10px;
+      color: var(--ink);
+      background: white;
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 70px;
+      resize: vertical;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus {
+      outline: 3px solid #ffe991;
+      border-color: var(--purple);
+    }
+
+    .answer-row {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: 8px;
+      margin: 7px 0;
+      padding: 6px 9px;
+      border: 2px solid #d9e5ec;
+      border-radius: 12px;
+      background: white;
+    }
+
+    .answer-row input[type="radio"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .answer-row input[type="text"] {
+      padding: 6px 3px;
+      border: none;
+      border-radius: 0;
+    }
+
+    .answer-row input[type="text"]:focus {
+      outline: none;
+      border-bottom: 2px solid var(--purple);
+    }
+
+    .small-help {
+      display: block;
+      margin-top: 5px;
+      color: #4c6281;
+      font-size: 0.84rem;
+      line-height: 1.3;
+    }
+
+    .image-upload-box {
+      margin-top: 12px;
+      padding: 10px;
+      border: 3px dashed #ad94f1;
+      border-radius: 14px;
+      background: #fbfaff;
+      text-align: center;
+    }
+
+    .image-preview {
+      display: block;
+      max-width: min(100%, 310px);
+      max-height: 170px;
+      margin: 10px auto 0;
+      border: 4px solid white;
+      border-radius: 13px;
+      object-fit: contain;
+      box-shadow: 0 4px 0 rgba(25, 59, 117, 0.14);
+    }
+
+    .button-row,
+    .header-controls,
+    .mini-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 999px;
+      color: white;
+      background: linear-gradient(#ff9ec2, #e55591);
+      box-shadow: 0 5px 0 #bc3b70;
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.05);
+    }
+
+    button:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 currentColor;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+      transform: none;
+    }
+
+    .blue-button {
+      background: linear-gradient(#7bdcf8, #39a8d7);
+      box-shadow: 0 5px 0 #227ca9;
+    }
+
+    .purple-button {
+      background: linear-gradient(#ac95ff, #7d60d4);
+      box-shadow: 0 5px 0 #5e46a7;
+    }
+
+    .green-button {
+      background: linear-gradient(#78d985, #43a956);
+      box-shadow: 0 5px 0 #318542;
+    }
+
+    .red-button {
+      background: linear-gradient(#ff9696, #d94a4a);
+      box-shadow: 0 5px 0 #a63232;
+    }
+
+    .music-button.off,
+    .small-read-button.off {
+      background: linear-gradient(#a9adb7, #747a86);
+      box-shadow: 0 5px 0 #555b65;
+    }
+
+    .question-list-title {
+      margin: 18px 0 8px;
+      color: var(--navy);
+      text-align: center;
+    }
+
+    .question-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .saved-question {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 8px;
+      padding: 9px;
+      border: 2px solid #c9e4ef;
+      border-radius: 13px;
+      background: #eaf8ff;
+    }
+
+    .saved-question strong {
+      color: var(--navy);
+    }
+
+    .saved-question p {
+      margin: 3px 0 0;
+      font-size: 0.88rem;
+      line-height: 1.3;
+    }
+
+    .mini-buttons {
+      justify-content: flex-end;
+      margin: 0;
+    }
+
+    .mini-buttons button {
+      padding: 7px 10px;
+      font-size: 0.8rem;
+    }
+
+    .empty-message {
+      margin: 12px 0;
+      color: #58708e;
+      text-align: center;
+      font-style: italic;
+    }
+
+    /* Quiz screen */
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 7px;
+      margin-bottom: 8px;
+    }
+
+    .badge {
+      padding: 7px 11px;
+      border-radius: 999px;
+      color: white;
+      background: var(--purple);
+      box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.14);
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+
+    .score-badge {
+      background: var(--green);
+    }
+
+    .progress-track {
+      flex: 1;
+      min-width: 140px;
+      height: 15px;
+      overflow: hidden;
+      border: 2px solid #b9cbd6;
+      border-radius: 999px;
+      background: #dce8ed;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(
+        90deg,
+        var(--yellow),
+        #ff9e52,
+        var(--pink)
+      );
+      transition: width 0.4s ease;
+    }
+
+    .quiz-title-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      margin: 4px 0 7px;
+    }
+
+    .quiz-title {
+      margin: 0;
+      color: var(--navy);
+      text-align: center;
+      font-size: clamp(1.25rem, 3vw, 1.7rem);
+    }
+
+    .small-read-button {
+      padding: 6px 9px;
+      background: linear-gradient(#ac95ff, #7d60d4);
+      box-shadow: 0 4px 0 #5e46a7;
+      font-size: 0.77rem;
+    }
+
+    .read-question-button {
+      background: linear-gradient(#7bdcf8, #39a8d7);
+      box-shadow: 0 4px 0 #227ca9;
+    }
+
+    .faith-banner {
+      margin-bottom: 10px;
+      padding: 8px;
+      border-radius: 13px;
+      color: white;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      text-align: center;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+
+    /* Picture left / question right when a picture is present */
+    .quiz-layout {
+      display: grid;
+      grid-template-columns: minmax(190px, 0.85fr) minmax(0, 1.4fr);
+      align-items: start;
+      gap: 12px;
+    }
+
+    /* No picture: question and choices fill the complete width */
+    .quiz-layout.no-picture {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .picture-panel {
+      display: grid;
+      min-height: 220px;
+      place-items: center;
+      overflow: hidden;
+      padding: 8px;
+      border: 3px solid #bce7ef;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #c7f3ff, #f3fffc);
+    }
+
+    .question-picture {
+      width: 100%;
+      max-height: 330px;
+      border-radius: 11px;
+      object-fit: contain;
+    }
+
+    .question-panel {
+      min-width: 0;
+    }
+
+    .question-number {
+      margin: 2px 0 5px;
+      color: var(--purple);
+      text-align: center;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+
+    .quiz-question {
+      margin: 6px 0 10px;
+      color: var(--navy);
+      text-align: center;
+      line-height: 1.25;
+      font-size: clamp(1.15rem, 3vw, 1.55rem);
+    }
+
+    /* Always two choices per row */
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .choice {
+      display: flex;
+      align-items: center;
+      min-height: 60px;
+      gap: 9px;
+      padding: 9px;
+      border: 3px solid transparent;
+      border-radius: 15px;
+      color: white;
+      font: inherit;
+      font-size: 0.92rem;
+      font-weight: bold;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .choice-letter {
+      display: grid;
+      width: 30px;
+      min-width: 30px;
+      height: 30px;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--navy);
+      background: white;
+      font-weight: bold;
+    }
+
+    .choice-a,
+    .back-choice-color {
+      background: linear-gradient(135deg, #55c8f3, #2f91d1);
+      box-shadow: 0 4px 0 #2375ae;
+    }
+
+    .choice-b,
+    .finish-choice-color {
+      background: linear-gradient(135deg, #a98cff, #7559cc);
+      box-shadow: 0 4px 0 #5741a1;
+    }
+
+    .choice-c {
+      background: linear-gradient(135deg, #ff9ec0, #dc5d91);
+      box-shadow: 0 4px 0 #ad3d68;
+    }
+
+    .choice-d {
+      background: linear-gradient(135deg, #82da89, #43a859);
+      box-shadow: 0 4px 0 #318143;
+    }
+
+    .choice.correct {
+      border-color: white;
+      outline: 3px solid var(--green);
+      animation: celebrate 0.55s ease;
+    }
+
+    .choice.wrong {
+      border-color: white;
+      outline: 3px solid #ff7474;
+      animation: shake 0.35s ease;
+    }
+
+    .choice:disabled:hover {
+      transform: none;
+    }
+
+    .message {
+      min-height: 25px;
+      margin: 9px 0 2px;
+      text-align: center;
+      font-size: 0.92rem;
+      font-weight: bold;
+    }
+
+    .message.good {
+      color: #17863b;
+    }
+
+    .message.try {
+      color: var(--red);
+    }
+
+    .review {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 7px;
+      margin: 12px auto;
+    }
+
+    .review-box {
+      display: grid;
+      min-height: 45px;
+      place-items: center;
+      border: 2px solid #cde0e8;
+      border-radius: 12px;
+      background: #e9f7fb;
+      font-weight: bold;
+    }
+
+    .review-box.correct {
+      border-color: var(--green);
+      background: #e5ffe8;
+    }
+
+    .confetti {
+      position: fixed;
+      top: -20px;
+      z-index: 50;
+      width: 12px;
+      height: 18px;
+      border-radius: 3px;
+      pointer-events: none;
+      animation: fall 3s linear forwards;
+    }
+
+    @keyframes celebrate {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08) rotate(2deg); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-7px); }
+      75% { transform: translateX(7px); }
+    }
+
+    @keyframes fall {
+      from {
+        transform: translateY(-30px) rotate(0);
+        opacity: 1;
+      }
+
+      to {
+        transform: translateY(110vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 650px) {
+      .app {
+        width: calc(100% - 12px);
+        margin: 5px auto 12px;
+      }
+
+      .card {
+        padding: 10px;
+        border-width: 3px;
+        border-radius: 16px;
+      }
+
+      .top-bar {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+
+      .progress-track {
+        grid-column: 1 / -1;
+        width: 100%;
+      }
+
+      .badge {
+        padding: 7px 4px;
+        text-align: center;
+        font-size: 0.77rem;
+      }
+
+      .quiz-layout,
+      .quiz-layout.no-picture {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .picture-panel {
+        min-height: 100px;
+        max-height: 175px;
+        padding: 5px;
+      }
+
+      .question-picture {
+        max-height: 160px;
+      }
+
+      .quiz-question {
+        margin: 5px 0 8px;
+        font-size: 1.1rem;
+      }
+
+      /* Two choices remain on each line on phones */
+      .choices {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
+      }
+
+      .choice {
+        min-height: 62px;
+        gap: 6px;
+        padding: 7px;
+        font-size: 0.8rem;
+      }
+
+      .choice-letter {
+        width: 26px;
+        min-width: 26px;
+        height: 26px;
+      }
+
+      .small-read-button {
+        padding: 5px 7px;
+        font-size: 0.7rem;
+      }
+
+      .saved-question {
+        grid-template-columns: 1fr;
+      }
+
+      .mini-buttons {
+        justify-content: flex-start;
+      }
+
+      .review {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      button {
+        padding: 9px 12px;
+        font-size: 0.86rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Keep these MP3 files in the same folder as this HTML file:
+       happy-children.mp3
+       clapping.mp3
+       wrong-answer.mp3
+  -->
+
+  <audio id="backgroundMusic" loop preload="metadata">
+    <source src="happy-children.mp3" type="audio/mpeg" />
+  </audio>
+
+  <audio id="correctSound" preload="auto">
+    <source src="clapping.mp3" type="audio/mpeg" />
+  </audio>
+
+  <audio id="wrongSound" preload="auto">
+    <source src="wrong-answer.mp3" type="audio/mpeg" />
+  </audio>
+
+  <main class="app">
+    <header>
+      <h1>📖 Bible Quiz Creator ✨</h1>
+
+      <p class="subtitle">
+        Create Bible questions by typing—no coding needed!
+      </p>
+
+      <div class="header-controls">
+        <button
+          id="musicButton"
+          class="music-button off"
+          type="button"
+          aria-pressed="false"
+        >
+          🎵 Background Music: Off
+        </button>
+      </div>
+    </header>
+
+    <section class="card">
+      <!-- CREATOR SCREEN -->
+      <div id="creatorScreen">
+        <h2 class="creator-title">Create Your Bible Quiz</h2>
+
+        <div class="intro-box">
+          Type a question, add answers, choose the correct answer, and
+          optionally upload one picture for that question.
+        </div>
+
+        <label for="quizTitleInput">Quiz Title</label>
+        <input
+          id="quizTitleInput"
+          type="text"
+          value="My Bible Quiz"
+          placeholder="Example: Sunday School Bible Quiz"
+        />
+
+        <div class="form-box">
+          <label for="questionInput">Bible Question</label>
+          <textarea
+            id="questionInput"
+            placeholder="Type your Bible question here..."
+          ></textarea>
+
+          <div class="image-upload-box">
+            <strong>Optional Picture for This Question</strong>
+
+            <span class="small-help">
+              This picture appears on the left side when presenting the
+              question. If no picture is added, the choices fill the page.
+            </span>
+
+            <label for="questionImageUpload">Choose a Picture</label>
+            <input
+              id="questionImageUpload"
+              type="file"
+              accept="image/png, image/jpeg, image/jpg, image/gif"
+            />
+
+            <img
+              id="questionImagePreview"
+              class="image-preview hidden"
+              alt="Question image preview"
+            />
+
+            <div class="button-row">
+              <button
+                id="removeQuestionImageButton"
+                class="red-button hidden"
+                type="button"
+              >
+                Remove Picture 🗑️
+              </button>
+            </div>
+          </div>
+
+          <label>Answer Choices</label>
+
+          <div class="answer-row">
+            <input
+              id="correct0"
+              name="correctAnswer"
+              type="radio"
+              value="0"
+              checked
+              aria-label="Mark Answer A as correct"
+            />
+            <input id="answer0" type="text" placeholder="Answer A" />
+          </div>
+
+          <div class="answer-row">
+            <input
+              id="correct1"
+              name="correctAnswer"
+              type="radio"
+              value="1"
+              aria-label="Mark Answer B as correct"
+            />
+            <input id="answer1" type="text" placeholder="Answer B" />
+          </div>
+
+          <div class="answer-row">
+            <input
+              id="correct2"
+              name="correctAnswer"
+              type="radio"
+              value="2"
+              aria-label="Mark Answer C as correct"
+            />
+            <input
+              id="answer2"
+              type="text"
+              placeholder="Answer C (optional)"
+            />
+          </div>
+
+          <div class="answer-row">
+            <input
+              id="correct3"
+              name="correctAnswer"
+              type="radio"
+              value="3"
+              aria-label="Mark Answer D as correct"
+            />
+            <input
+              id="answer3"
+              type="text"
+              placeholder="Answer D (optional)"
+            />
+          </div>
+
+          <label for="encouragementInput">
+            Message for a Correct Answer
+            <span class="small-help">(optional)</span>
+          </label>
+
+          <input
+            id="encouragementInput"
+            type="text"
+            placeholder="Example: Great job! You are learning God's Word!"
+          />
+
+          <div class="button-row">
+            <button
+              id="saveQuestionButton"
+              class="green-button"
+              type="button"
+            >
+              Add Question ➕
+            </button>
+
+            <button
+              id="cancelEditButton"
+              class="blue-button hidden"
+              type="button"
+            >
+              Cancel Edit
+            </button>
+          </div>
+        </div>
+
+        <h3 class="question-list-title">
+          Your Questions: <span id="questionCount">0</span>
+        </h3>
+
+        <div id="questionList" class="question-list"></div>
+
+        <p id="emptyMessage" class="empty-message">
+          No questions yet. Type your first question above!
+        </p>
+
+        <div class="button-row">
+          <button id="presentButton" class="purple-button" type="button">
+            Present Quiz ▶
+          </button>
+
+          <button id="exportButton" class="blue-button" type="button">
+            Export Quiz 💾
+          </button>
+
+          <button id="importButton" class="blue-button" type="button">
+            Import Quiz 📂
+          </button>
+
+          <button id="clearButton" class="red-button" type="button">
+            Clear All 🗑️
+          </button>
+        </div>
+
+        <input
+          id="importFileInput"
+          type="file"
+          accept=".json"
+          class="hidden"
+        />
+      </div>
+
+      <!-- QUIZ SCREEN -->
+      <div id="quizScreen" class="hidden">
+        <div class="top-bar">
+          <div class="badge" id="questionBadge">Question 1</div>
+
+          <div class="progress-track" aria-label="Quiz progress">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+
+          <div class="badge score-badge">
+            Stars: <span id="scoreText">0</span> ⭐
+          </div>
+        </div>
+
+        <div class="quiz-title-row">
+          <h2 class="quiz-title" id="quizTitleDisplay">My Bible Quiz</h2>
+
+          <button
+            id="readToggleButton"
+            class="small-read-button"
+            type="button"
+            aria-pressed="true"
+          >
+            🔊 Read: On
+          </button>
+
+          <button
+            id="readQuestionButton"
+            class="small-read-button read-question-button"
+            type="button"
+          >
+            📣 Read
+          </button>
+        </div>
+
+        <div class="faith-banner">
+          🙏 God’s Word Helps Us Learn and Grow 🙏
+        </div>
+
+        <div id="quizLayout" class="quiz-layout">
+          <div id="picturePanel" class="picture-panel hidden">
+            <img
+              id="questionPicture"
+              class="question-picture"
+              alt="Picture for this Bible question"
+            />
+          </div>
+
+          <div class="question-panel">
+            <div class="question-number" id="questionNumber"></div>
+
+            <h2 class="quiz-question" id="quizQuestionText"></h2>
+
+            <div class="choices" id="choices"></div>
+
+            <div
+              id="quizMessage"
+              class="message"
+              aria-live="polite"
+            ></div>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <!-- Same blue color as Choice A -->
+          <button
+            id="quizBackButton"
+            class="back-choice-color"
+            type="button"
+          >
+            ← Back
+          </button>
+
+          <!-- Same purple color as Choice B -->
+          <button
+            id="quizNextButton"
+            class="finish-choice-color"
+            type="button"
+          >
+            Next Question →
+          </button>
+
+          <button
+            id="stopPresentingButton"
+            class="red-button"
+            type="button"
+          >
+            Stop Presenting ✖
+          </button>
+        </div>
+      </div>
+
+      <!-- FINISH SCREEN -->
+      <div id="finishScreen" class="hidden">
+        <div style="font-size: clamp(4rem, 12vw, 7rem); text-align: center;">
+          🎉📖⭐
+        </div>
+
+        <h2 class="finish-title">Wonderful Job!</h2>
+
+        <div id="finishMessage" class="intro-box"></div>
+
+        <div id="reviewBoxes" class="review"></div>
+
+        <div class="note-box">
+          <strong>Remember:</strong><br />
+          The Bible helps us learn about God’s love, wisdom, kindness, and
+          faithfulness.
+        </div>
+
+        <div class="button-row">
+          <button
+            id="presentAgainButton"
+            class="purple-button"
+            type="button"
+          >
+            Present Again ▶
+          </button>
+
+          <button
+            id="returnToCreatorButton"
+            class="blue-button"
+            type="button"
+          >
+            Return to Creator ✏️
+          </button>
+
+          <button id="exitButton" class="red-button" type="button">
+            Exit Quiz ✖
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "bibleQuizCreatorWithPictures";
+
+    let questions = [];
+    let editingQuestionIndex = null;
+    let editingImageData = "";
+
+    let currentQuestion = 0;
+    let score = 0;
+    let musicPlaying = false;
+    let readAloudEnabled = true;
+    let isReading = false;
+
+    const correctAnswers = new Set();
+
+    const creatorScreen = document.getElementById("creatorScreen");
+    const quizScreen = document.getElementById("quizScreen");
+    const finishScreen = document.getElementById("finishScreen");
+
+    const quizTitleInput = document.getElementById("quizTitleInput");
+    const questionInput = document.getElementById("questionInput");
+    const encouragementInput = document.getElementById("encouragementInput");
+
+    const answerInputs = [
+      document.getElementById("answer0"),
+      document.getElementById("answer1"),
+      document.getElementById("answer2"),
+      document.getElementById("answer3")
+    ];
+
+    const correctRadios = [
+      document.getElementById("correct0"),
+      document.getElementById("correct1"),
+      document.getElementById("correct2"),
+      document.getElementById("correct3")
+    ];
+
+    const questionImageUpload = document.getElementById("questionImageUpload");
+    const questionImagePreview = document.getElementById("questionImagePreview");
+    const removeQuestionImageButton = document.getElementById("removeQuestionImageButton");
+
+    const saveQuestionButton = document.getElementById("saveQuestionButton");
+    const cancelEditButton = document.getElementById("cancelEditButton");
+
+    const questionCount = document.getElementById("questionCount");
+    const questionList = document.getElementById("questionList");
+    const emptyMessage = document.getElementById("emptyMessage");
+
+    const presentButton = document.getElementById("presentButton");
+    const exportButton = document.getElementById("exportButton");
+    const importButton = document.getElementById("importButton");
+    const importFileInput = document.getElementById("importFileInput");
+    const clearButton = document.getElementById("clearButton");
+
+    const musicButton = document.getElementById("musicButton");
+    const backgroundMusic = document.getElementById("backgroundMusic");
+    const correctSound = document.getElementById("correctSound");
+    const wrongSound = document.getElementById("wrongSound");
+
+    const questionBadge = document.getElementById("questionBadge");
+    const progressFill = document.getElementById("progressFill");
+    const scoreText = document.getElementById("scoreText");
+    const quizTitleDisplay = document.getElementById("quizTitleDisplay");
+    const questionNumber = document.getElementById("questionNumber");
+    const quizQuestionText = document.getElementById("quizQuestionText");
+
+    const quizLayout = document.getElementById("quizLayout");
+    const picturePanel = document.getElementById("picturePanel");
+    const questionPicture = document.getElementById("questionPicture");
+
+    const readToggleButton = document.getElementById("readToggleButton");
+    const readQuestionButton = document.getElementById("readQuestionButton");
+
+    const choices = document.getElementById("choices");
+    const quizMessage = document.getElementById("quizMessage");
+
+    const quizBackButton = document.getElementById("quizBackButton");
+    const quizNextButton = document.getElementById("quizNextButton");
+    const stopPresentingButton = document.getElementById("stopPresentingButton");
+
+    const finishMessage = document.getElementById("finishMessage");
+    const reviewBoxes = document.getElementById("reviewBoxes");
+
+    const presentAgainButton = document.getElementById("presentAgainButton");
+    const returnToCreatorButton = document.getElementById("returnToCreatorButton");
+    const exitButton = document.getElementById("exitButton");
+
+    function saveQuizToBrowser() {
+      const quizData = {
+        title: quizTitleInput.value.trim() || "My Bible Quiz",
+        questions: questions
+      };
+
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(quizData));
+      } catch (error) {
+        console.log("The quiz could not be saved in the browser.");
+      }
+    }
+
+    function loadQuizFromBrowser() {
+      const savedQuiz = localStorage.getItem(STORAGE_KEY);
+
+      if (!savedQuiz) {
+        return;
+      }
+
+      try {
+        const quizData = JSON.parse(savedQuiz);
+
+        if (quizData.title) {
+          quizTitleInput.value = quizData.title;
+        }
+
+        if (Array.isArray(quizData.questions)) {
+          questions = quizData.questions;
+        }
+      } catch (error) {
+        console.log("Could not load saved quiz.");
+      }
+    }
+
+    function updateQuestionImagePreview() {
+      if (!editingImageData) {
+        questionImagePreview.src = "";
+        questionImagePreview.classList.add("hidden");
+        removeQuestionImageButton.classList.add("hidden");
+        return;
+      }
+
+      questionImagePreview.src = editingImageData;
+      questionImagePreview.classList.remove("hidden");
+      removeQuestionImageButton.classList.remove("hidden");
+    }
+
+    function uploadQuestionImage(event) {
+      const imageFile = event.target.files[0];
+
+      if (!imageFile) {
+        return;
+      }
+
+      if (imageFile.size > 500 * 1024) {
+        alert("Please choose a smaller picture, preferably less than 500 KB.");
+        questionImageUpload.value = "";
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        editingImageData = reader.result;
+        updateQuestionImagePreview();
+      };
+
+      reader.readAsDataURL(imageFile);
+    }
+
+    function removeQuestionImage() {
+      editingImageData = "";
+      questionImageUpload.value = "";
+      updateQuestionImagePreview();
+    }
+
+    function updateMusicButton() {
+      musicButton.textContent = musicPlaying
+        ? "🎵 Background Music: On"
+        : "🎵 Background Music: Off";
+
+      musicButton.classList.toggle("off", !musicPlaying);
+      musicButton.setAttribute("aria-pressed", String(musicPlaying));
+    }
+
+    function startBackgroundMusic() {
+      backgroundMusic.volume = 0.18;
+
+      backgroundMusic.play()
+        .then(() => {
+          musicPlaying = true;
+          updateMusicButton();
+        })
+        .catch(() => {
+          musicPlaying = false;
+          updateMusicButton();
+
+          alert(
+            "Background music could not start. Check that happy-children.mp3 is in the same folder as this HTML file."
+          );
+        });
+    }
+
+    function stopBackgroundMusic() {
+      backgroundMusic.pause();
+      musicPlaying = false;
+      updateMusicButton();
+    }
+
+    function toggleBackgroundMusic() {
+      if (musicPlaying) {
+        stopBackgroundMusic();
+      } else {
+        startBackgroundMusic();
+      }
+    }
+
+    function playCorrectSound() {
+      correctSound.currentTime = 0;
+      correctSound.volume = 0.65;
+
+      correctSound.play().catch(() => {
+        console.log("Could not play clapping.mp3");
+      });
+    }
+
+    function playWrongSound() {
+      wrongSound.currentTime = 0;
+      wrongSound.volume = 0.5;
+
+      wrongSound.play().catch(() => {
+        console.log("Could not play wrong-answer.mp3");
+      });
+    }
+
+    function updateReadControls() {
+      readToggleButton.textContent = readAloudEnabled
+        ? "🔊 Read: On"
+        : "🔇 Read: Off";
+
+      readToggleButton.classList.toggle("off", !readAloudEnabled);
+      readToggleButton.setAttribute("aria-pressed", String(readAloudEnabled));
+      readQuestionButton.disabled = !readAloudEnabled;
+
+      if (!readAloudEnabled) {
+        stopReading();
+      }
+    }
+
+    function toggleReadAloud() {
+      readAloudEnabled = !readAloudEnabled;
+      updateReadControls();
+    }
+
+    function stopReading() {
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+
+      isReading = false;
+
+      if (readAloudEnabled) {
+        readQuestionButton.textContent = "📣 Read";
+      }
+    }
+
+    function readCurrentQuestion() {
+      if (!readAloudEnabled) {
+        return;
+      }
+
+      if (!("speechSynthesis" in window)) {
+        quizMessage.textContent = "Read Aloud is not supported in this browser.";
+        quizMessage.className = "message try";
+        return;
+      }
+
+      if (isReading) {
+        stopReading();
+        return;
+      }
+
+      const question = questions[currentQuestion];
+      const letters = ["A", "B", "C", "D"];
+
+      let textToRead = `Question ${currentQuestion + 1}. ${question.question}. `;
+
+      question.options.forEach((option, index) => {
+        textToRead += `Answer ${letters[index]}. ${option}. `;
+      });
+
+      const speech = new SpeechSynthesisUtterance(textToRead);
+
+      speech.rate = 0.9;
+      speech.pitch = 1.1;
+      speech.volume = 1;
+
+      speech.onstart = () => {
+        isReading = true;
+        readQuestionButton.textContent = "⏹ Stop";
+      };
+
+      speech.onend = () => {
+        isReading = false;
+        readQuestionButton.textContent = "📣 Read";
+      };
+
+      speech.onerror = () => {
+        isReading = false;
+        readQuestionButton.textContent = "📣 Read";
+        quizMessage.textContent = "The question could not be read aloud.";
+        quizMessage.className = "message try";
+      };
+
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(speech);
+    }
+
+    function getSelectedCorrectIndex() {
+      const selectedRadio = document.querySelector(
+        'input[name="correctAnswer"]:checked'
+      );
+
+      return selectedRadio ? Number(selectedRadio.value) : 0;
+    }
+
+    function clearQuestionForm() {
+      questionInput.value = "";
+      encouragementInput.value = "";
+
+      answerInputs.forEach((input) => {
+        input.value = "";
+      });
+
+      correctRadios[0].checked = true;
+      editingImageData = "";
+      questionImageUpload.value = "";
+
+      updateQuestionImagePreview();
+
+      editingQuestionIndex = null;
+      saveQuestionButton.textContent = "Add Question ➕";
+      cancelEditButton.classList.add("hidden");
+    }
+
+    function saveQuestion() {
+      const questionText = questionInput.value.trim();
+      const selectedCorrectIndex = getSelectedCorrectIndex();
+
+      const allAnswers = answerInputs.map((input, index) => ({
+        text: input.value.trim(),
+        originalIndex: index
+      }));
+
+      const filledAnswers = allAnswers.filter((answer) => answer.text !== "");
+
+      if (!questionText) {
+        alert("Please type a question first.");
+        questionInput.focus();
+        return;
+      }
+
+      if (filledAnswers.length < 2) {
+        alert("Please type at least two answer choices.");
+        return;
+      }
+
+      const correctAnswer = allAnswers[selectedCorrectIndex].text;
+
+      if (!correctAnswer) {
+        alert(
+          "Please type the answer you marked as correct, or choose another correct answer."
+        );
+
+        answerInputs[selectedCorrectIndex].focus();
+        return;
+      }
+
+      const newQuestion = {
+        question: questionText,
+        options: filledAnswers.map((answer) => answer.text),
+        correctAnswer: correctAnswer,
+        encouragement:
+          encouragementInput.value.trim() ||
+          "Wonderful! That is the right answer! ⭐",
+        imageData: editingImageData
+      };
+
+      if (editingQuestionIndex === null) {
+        questions.push(newQuestion);
+      } else {
+        questions[editingQuestionIndex] = newQuestion;
+      }
+
+      saveQuizToBrowser();
+      renderQuestionList();
+      clearQuestionForm();
+    }
+
+    function renderQuestionList() {
+      questionCount.textContent = questions.length;
+      questionList.innerHTML = "";
+      emptyMessage.classList.toggle("hidden", questions.length > 0);
+
+      questions.forEach((question, index) => {
+        const questionBox = document.createElement("div");
+        questionBox.className = "saved-question";
+
+        const textArea = document.createElement("div");
+
+        const questionLabel = document.createElement("strong");
+        questionLabel.textContent = `${index + 1}. ${question.question}`;
+
+        const answerLabel = document.createElement("p");
+
+        const answerText = document.createTextNode("Correct answer: ");
+        const answerStrong = document.createElement("strong");
+        answerStrong.textContent = question.correctAnswer;
+
+        answerLabel.appendChild(answerText);
+        answerLabel.appendChild(answerStrong);
+
+        if (question.imageData) {
+          answerLabel.appendChild(document.createTextNode(" • Picture added 🖼️"));
+        }
+
+        textArea.appendChild(questionLabel);
+        textArea.appendChild(answerLabel);
+
+        const buttons = document.createElement("div");
+        buttons.className = "mini-buttons";
+
+        const editButton = document.createElement("button");
+        editButton.className = "blue-button";
+        editButton.type = "button";
+        editButton.textContent = "Edit ✏️";
+        editButton.addEventListener("click", () => editQuestion(index));
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "red-button";
+        deleteButton.type = "button";
+        deleteButton.textContent = "Delete 🗑️";
+        deleteButton.addEventListener("click", () => deleteQuestion(index));
+
+        buttons.append(editButton, deleteButton);
+        questionBox.append(textArea, buttons);
+        questionList.appendChild(questionBox);
+      });
+    }
+
+    function editQuestion(index) {
+      const question = questions[index];
+
+      questionInput.value = question.question;
+      encouragementInput.value = question.encouragement || "";
+
+      answerInputs.forEach((input) => {
+        input.value = "";
+      });
+
+      question.options.forEach((option, optionIndex) => {
+        if (answerInputs[optionIndex]) {
+          answerInputs[optionIndex].value = option;
+        }
+      });
+
+      const correctIndex = question.options.indexOf(question.correctAnswer);
+
+      correctRadios.forEach((radio, radioIndex) => {
+        radio.checked = radioIndex === correctIndex;
+      });
+
+      editingImageData = question.imageData || "";
+      questionImageUpload.value = "";
+      updateQuestionImagePreview();
+
+      editingQuestionIndex = index;
+      saveQuestionButton.textContent = "Save Changes 💾";
+      cancelEditButton.classList.remove("hidden");
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+
+      questionInput.focus();
+    }
+
+    function deleteQuestion(index) {
+      const shouldDelete = confirm(`Delete Question ${index + 1}?`);
+
+      if (!shouldDelete) {
+        return;
+      }
+
+      questions.splice(index, 1);
+
+      if (editingQuestionIndex === index) {
+        clearQuestionForm();
+      }
+
+      saveQuizToBrowser();
+      renderQuestionList();
+    }
+
+    function startPresentation() {
+      if (questions.length === 0) {
+        alert("Please add at least one question before presenting the quiz.");
+        return;
+      }
+
+      stopReading();
+      saveQuizToBrowser();
+
+      currentQuestion = 0;
+      score = 0;
+      correctAnswers.clear();
+
+      scoreText.textContent = score;
+
+      creatorScreen.classList.add("hidden");
+      finishScreen.classList.add("hidden");
+      quizScreen.classList.remove("hidden");
+
+      quizTitleDisplay.textContent =
+        quizTitleInput.value.trim() || "My Bible Quiz";
+
+      showQuizQuestion();
+    }
+
+    function showQuizQuestion() {
+      stopReading();
+
+      const question = questions[currentQuestion];
+      const wasCorrect = correctAnswers.has(currentQuestion);
+      const letters = ["A", "B", "C", "D"];
+
+      questionBadge.textContent =
+        `Question ${currentQuestion + 1} of ${questions.length}`;
+
+      questionNumber.textContent =
+        `Bible Question ${currentQuestion + 1}`;
+
+      quizQuestionText.textContent = question.question;
+
+      progressFill.style.width =
+        `${(currentQuestion / questions.length) * 100}%`;
+
+      if (question.imageData) {
+        questionPicture.src = question.imageData;
+        picturePanel.classList.remove("hidden");
+        quizLayout.classList.remove("no-picture");
+      } else {
+        questionPicture.src = "";
+        picturePanel.classList.add("hidden");
+        quizLayout.classList.add("no-picture");
+      }
+
+      choices.innerHTML = "";
+      quizMessage.textContent = "";
+      quizMessage.className = "message";
+
+      question.options.forEach((option, index) => {
+        const answerButton = document.createElement("button");
+
+        answerButton.className =
+          `choice choice-${letters[index].toLowerCase()}`;
+
+        answerButton.type = "button";
+
+        const letter = document.createElement("span");
+        letter.className = "choice-letter";
+        letter.textContent = letters[index];
+
+        const answerText = document.createElement("span");
+        answerText.textContent = option;
+
+        answerButton.append(letter, answerText);
+
+        if (wasCorrect) {
+          answerButton.disabled = true;
+
+          if (option === question.correctAnswer) {
+            answerButton.classList.add("correct");
+          }
+        }
+
+        answerButton.addEventListener("click", () => {
+          answerQuestion(answerButton, option);
+        });
+
+        choices.appendChild(answerButton);
+      });
+
+      quizBackButton.classList.toggle("hidden", currentQuestion === 0);
+
+      quizNextButton.textContent =
+        currentQuestion === questions.length - 1
+          ? "Finish Quiz! 🎉"
+          : "Next Question →";
+    }
+
+    function answerQuestion(button, selectedAnswer) {
+      if (correctAnswers.has(currentQuestion)) {
+        return;
+      }
+
+      const question = questions[currentQuestion];
+
+      if (selectedAnswer === question.correctAnswer) {
+        correctAnswers.add(currentQuestion);
+
+        score = correctAnswers.size;
+        scoreText.textContent = score;
+
+        button.classList.add("correct");
+
+        document.querySelectorAll(".choice").forEach((choice) => {
+          choice.disabled = true;
+        });
+
+        playCorrectSound();
+
+        quizMessage.textContent = question.encouragement;
+        quizMessage.className = "message good";
+
+        createConfetti();
+      } else {
+        button.classList.add("wrong");
+
+        playWrongSound();
+
+        quizMessage.textContent =
+          "Nice try! Think about the question and try again. 😊";
+
+        quizMessage.className = "message try";
+
+        setTimeout(() => {
+          button.classList.remove("wrong");
+        }, 400);
+      }
+    }
+
+    function nextQuizQuestion() {
+      stopReading();
+
+      if (currentQuestion >= questions.length - 1) {
+        showFinishScreen();
+        return;
+      }
+
+      currentQuestion += 1;
+      showQuizQuestion();
+    }
+
+    function previousQuizQuestion() {
+      stopReading();
+
+      if (currentQuestion > 0) {
+        currentQuestion -= 1;
+        showQuizQuestion();
+      }
+    }
+
+    function stopPresentation() {
+      stopReading();
+
+      quizScreen.classList.add("hidden");
+      finishScreen.classList.add("hidden");
+      creatorScreen.classList.remove("hidden");
+
+      renderQuestionList();
+    }
+
+    function showFinishScreen() {
+      stopReading();
+
+      progressFill.style.width = "100%";
+
+      quizScreen.classList.add("hidden");
+      finishScreen.classList.remove("hidden");
+
+      const title = quizTitleInput.value.trim() || "Bible Quiz";
+
+      finishMessage.innerHTML = "";
+
+      const titleStrong = document.createElement("strong");
+      titleStrong.textContent = title;
+
+      const starsText = document.createElement("strong");
+      starsText.textContent = `${score} of ${questions.length} stars!`;
+
+      finishMessage.appendChild(titleStrong);
+      finishMessage.appendChild(document.createElement("br"));
+      finishMessage.appendChild(document.createElement("br"));
+      finishMessage.appendChild(document.createTextNode("You earned "));
+      finishMessage.appendChild(starsText);
+      finishMessage.appendChild(document.createElement("br"));
+      finishMessage.appendChild(document.createElement("br"));
+      finishMessage.appendChild(
+        document.createTextNode("Keep learning about God and His Word every day!")
+      );
+
+      reviewBoxes.innerHTML = "";
+
+      questions.forEach((question, index) => {
+        const reviewBox = document.createElement("div");
+        reviewBox.className = "review-box";
+
+        if (correctAnswers.has(index)) {
+          reviewBox.classList.add("correct");
+          reviewBox.textContent = "⭐";
+        } else {
+          reviewBox.textContent = index + 1;
+        }
+
+        reviewBoxes.appendChild(reviewBox);
+      });
+
+      playCorrectSound();
+      createConfetti();
+      setTimeout(createConfetti, 500);
+    }
+
+    function exitQuiz() {
+      stopReading();
+      stopBackgroundMusic();
+
+      window.close();
+
+      setTimeout(() => {
+        if (!window.closed) {
+          finishScreen.classList.add("hidden");
+          quizScreen.classList.add("hidden");
+          creatorScreen.classList.remove("hidden");
+
+          alert(
+            "Your browser did not allow this tab to close. You are back at the Quiz Creator. You may now close the browser tab or window."
+          );
+        }
+      }, 200);
+    }
+
+    function exportQuiz() {
+      if (questions.length === 0) {
+        alert("Please add at least one question before exporting.");
+        return;
+      }
+
+      const quizData = {
+        title: quizTitleInput.value.trim() || "My Bible Quiz",
+        questions: questions
+      };
+
+      const fileContent = JSON.stringify(quizData, null, 2);
+
+      const fileBlob = new Blob([fileContent], {
+        type: "application/json"
+      });
+
+      const fileUrl = URL.createObjectURL(fileBlob);
+      const downloadLink = document.createElement("a");
+
+      downloadLink.href = fileUrl;
+      downloadLink.download = "my-bible-quiz.json";
+
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      downloadLink.remove();
+
+      URL.revokeObjectURL(fileUrl);
+    }
+
+    function importQuiz() {
+      importFileInput.click();
+    }
+
+    function loadImportedQuiz(event) {
+      const file = event.target.files[0];
+
+      if (!file) {
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        try {
+          const importedQuiz = JSON.parse(reader.result);
+
+          if (!importedQuiz || !Array.isArray(importedQuiz.questions)) {
+            throw new Error("Invalid quiz file.");
+          }
+
+          questions = importedQuiz.questions;
+          quizTitleInput.value = importedQuiz.title || "My Bible Quiz";
+
+          clearQuestionForm();
+          saveQuizToBrowser();
+          renderQuestionList();
+
+          alert("Quiz imported successfully!");
+        } catch (error) {
+          alert(
+            "This file could not be imported. Please choose a Bible Quiz Creator export file."
+          );
+        }
+      };
+
+      reader.readAsText(file);
+      event.target.value = "";
+    }
+
+    function clearAllQuestions() {
+      if (questions.length === 0) {
+        return;
+      }
+
+      const shouldClear = confirm("Delete all questions and their pictures?");
+
+      if (!shouldClear) {
+        return;
+      }
+
+      questions = [];
+      clearQuestionForm();
+      saveQuizToBrowser();
+      renderQuestionList();
+    }
+
+    function createConfetti() {
+      const colors = [
+        "#ed6e9f",
+        "#ffd84d",
+        "#52b967",
+        "#56c7f2",
+        "#8d6be8",
+        "#ff9b52"
+      ];
+
+      for (let i = 0; i < 35; i++) {
+        const confetti = document.createElement("div");
+
+        confetti.className = "confetti";
+        confetti.style.left = `${Math.random() * 100}vw`;
+        confetti.style.backgroundColor =
+          colors[Math.floor(Math.random() * colors.length)];
+
+        confetti.style.animationDuration =
+          `${2 + Math.random() * 1.5}s`;
+
+        document.body.appendChild(confetti);
+
+        setTimeout(() => {
+          confetti.remove();
+        }, 4000);
+      }
+    }
+
+    questionImageUpload.addEventListener("change", uploadQuestionImage);
+
+    removeQuestionImageButton.addEventListener("click", removeQuestionImage);
+    saveQuestionButton.addEventListener("click", saveQuestion);
+
+    cancelEditButton.addEventListener("click", () => {
+      clearQuestionForm();
+    });
+
+    presentButton.addEventListener("click", startPresentation);
+    quizBackButton.addEventListener("click", previousQuizQuestion);
+    quizNextButton.addEventListener("click", nextQuizQuestion);
+    stopPresentingButton.addEventListener("click", stopPresentation);
+
+    presentAgainButton.addEventListener("click", startPresentation);
+    returnToCreatorButton.addEventListener("click", stopPresentation);
+    exitButton.addEventListener("click", exitQuiz);
+
+    exportButton.addEventListener("click", exportQuiz);
+    importButton.addEventListener("click", importQuiz);
+    importFileInput.addEventListener("change", loadImportedQuiz);
+
+    clearButton.addEventListener("click", clearAllQuestions);
+
+    musicButton.addEventListener("click", toggleBackgroundMusic);
+    readToggleButton.addEventListener("click", toggleReadAloud);
+    readQuestionButton.addEventListener("click", readCurrentQuestion);
+
+    quizTitleInput.addEventListener("input", saveQuizToBrowser);
+
+    loadQuizFromBrowser();
+    renderQuestionList();
+    updateMusicButton();
+    updateReadControls();
+  </script>
+</body>
+</html>
